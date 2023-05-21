@@ -1,0 +1,21 @@
+---
+- name: Setup Raspberry Pi for Docker
+  hosts: pi
+  remote_user: ansible
+  gather_facts: yes
+  become: true
+
+- name: Install community.general collection
+  ansible.builtin.shell:
+    cmd: ansible-galaxy collection install community.general
+  become: true
+  become_user: root
+  when: "'community.general.docker_image' not in ansible.module_utils._collections_loaded"
+      
+    
+  vars_files:
+    - vars/main.yml
+    
+  handlers:
+    - include: handlers/main.yml
+        

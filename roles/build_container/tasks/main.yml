@@ -1,0 +1,25 @@
+- name: Create Docker build directory
+  file:
+    path: "{{ docker_build_directory }}"
+    state: directory
+    mode: '0755'
+
+- name: Create Dockerfile from template
+  template:
+    src: Dockerfile.j2
+    dest: "{{ docker_build_directory }}/Dockerfile"
+    mode: "{{ dockerfile_mode }}"
+
+- name: Create entrypoint.sh from template
+  template:
+    src: entrypoint.sh.j2
+    dest: "{{ docker_build_directory }}/entrypoint.sh"
+    mode: "{{ entrypoint_mode }}"
+
+- name: Build Docker image
+  community.general.docker_image:
+    path: "{{ docker_build_directory }}"
+    name: "{{ docker_image_name }}"
+    build:
+      pull: yes
+    source: build

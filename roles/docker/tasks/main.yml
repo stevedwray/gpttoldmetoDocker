@@ -1,0 +1,99 @@
+---
+- name: Modify timesyncd.conf
+  lineinfile:
+    path: /etc/systemd/timesyncd.conf
+    line: "NTP=pool.ntp.org"
+    state: present
+    backup: yes
+    insertafter: EOF
+    regexp: "^NTP=.*"
+  notify: Restart timesyncd
+ 
+- name: Install Docker and required packages
+  apt:
+    name:
+      - docker.io
+      - containerd
+    state: present
+    update_cache: yes
+  become: true
+  become_user: root
+  become_method: sudo
+  
+- name: Install Docker SDK for Python
+  pip:
+    name: docker
+    state: present
+    
+- name: Partition USB drive
+  parted:
+    device: "{{ usb_device }}"
+    number: 1
+    state: present
+    align: optimal
+    label: gpt
+    part_end: 100%
+    
+- name: Create filesystem on the USB partition
+  filesystem:
+    fstype: ext4
+    dev: "{{ usb_partition }}"
+
+- name: Create mount point
+  file:
+    path: "{{ usb_mount_point }}"
+    state: directory
+
+- name: Mount USB drive
+  mount:
+    path: "{{ usb_mount_point }}"
+    src: "{{ usb_partition }}"
+    fstype: ext4
+    state: mounted
+
+- name: Create Docker directory structure on USB drive
+  file:
+    path: "{{ docker_data_dir }}"
+    state: directory
+
+- name: Copy Docker configuration files to USB drive
+  template:
+    src: daemon.json.j2
+    dest: "{{ docker_config_path }}"
+
+- name: Check if network exists
+  command: docker network inspect {{ network_name }}
+  register: network_check
+  changed_when: not check_mode
+  ignore_errors: yes
+    
+- name: Create custom network
+  command: docker network create \
+    --driver {{ network_driver }} \
+    --ipam-driver default \
+    --subnet {{ network_subnet }} \
+    --gateway {{ network_gateway }} \
+    --opt parent={{ network_parent }} \
+    {{ network_name }}
+  become: true
+  changed_when: not check_mode
+  when: network_check.rc is defined and network_check.rc != 0
+
+- name: Enable and start Docker service
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Add ansible user to Docker group
+  user:
+    name: ansible
+    groups: docker
+    append: yes
+
+- name: Configure sysctl
+  template:
+    src: sysctl.conf.j2
+    dest: "{{ sysctl_config_file }}"
+  notify: Apply sysctl changes
+

@@ -1,0 +1,6 @@
+---
+dockerfile_path: /tmp/
+local_repo: 192.168.1.14
+image_name: honeyd
+image_tag: latest
+

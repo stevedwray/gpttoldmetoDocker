@@ -1,0 +1,12 @@
+---
+portainer_data_dir: "{{ docker_data_dir }}/portainer"
+portainer_networks:
+  - name: Portainer_Net
+    subnet: 192.16.100.0/24
+  - name: Portainer_Net_Internal
+    subnet: 192.16.101.0/24
+portainer_ports:
+  - "8000:8000"
+  - "9000:9000"
+portainer_agent_ports:
+  - "9001:9001"
