@@ -1,40 +1,23 @@
 ---
-- name: Install Docker
-  apt:
-    name: docker.io
-    state: present
+- name: Create temporary directory for Docker Compose files
+  tempfile:
+    state: directory
+  register: compose_temp_dir
 
-- name: Install Python
-  apt:
-    name: python3
-    state: present
-
-- name: Install pip
-  apt:
-    name: python3-pip
-    state: present
-
-- name: Install Docker Python SDK
-  pip:
-    name: docker
-
-- name: Copy Dockerfile
+- name: Copy Dockerfile to temporary directory
   template:
     src: Dockerfile.j2
-    dest: "{{ jupyter_dockerfile_path }}"
-  notify: Restart Jupyter container
+    dest: "{{ compose_temp_dir.path }}/Dockerfile"
 
-- name: Build Docker image
-  docker_image:
-    name: "{{ jupyter_image_name }}"
-    build:
-      context: "{{ playbook_dir }}"
-      dockerfile: "{{ jupyter_dockerfile_path }}"
+- name: Create Docker Compose file
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ compose_temp_dir.path }}/docker-compose.yml"
 
-- name: Run Docker container
-  docker_container:
-    name: "{{ jupyter_container_name }}"
-    image: "{{ jupyter_image_name }}"
-    ports:
-      - "{{ jupyter_notebook_port }}:8888"
-    detach: yes
+
+- name: Build and start Jupyter container using Docker Compose
+  docker_compose:
+    project_src: "{{ compose_temp_dir.path }}"
+    project_name: jupyter
+    build: yes
+    state: present
