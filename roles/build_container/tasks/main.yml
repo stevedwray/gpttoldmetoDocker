@@ -16,10 +16,3 @@
     dest: "{{ docker_build_directory }}/entrypoint.sh"
     mode: "{{ entrypoint_mode }}"
 
-- name: Build Docker image
-  community.general.docker_image:
-    path: "{{ docker_build_directory }}"
-    name: "{{ docker_image_name }}"
-    build:
-      pull: yes
-    source: build

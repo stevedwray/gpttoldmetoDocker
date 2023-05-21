@@ -1,0 +1,5 @@
+---
+- name: Restart Jupyter container
+  docker_container:
+    name: "{{ jupyter_container_name }}"
+    state: restarted

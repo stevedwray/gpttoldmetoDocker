@@ -1,0 +1,6 @@
+---
+jupyter_image_name: my-jupyter-image
+jupyter_container_name: my-jupyter-container
+jupyter_dockerfile_path: /tmp/Dockerfile
+jupyter_notebook_hashed_password: "8$jaI+VKZ+e1+YQl2YywcjAw$JMejeGSqRzg+vlCjx/BYITY+Cdq6AAdF6gcCW0FP5iU"
+jupyter_notebook_port: 8888

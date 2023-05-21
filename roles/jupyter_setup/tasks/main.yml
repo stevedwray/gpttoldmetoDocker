@@ -1,0 +1,40 @@
+---
+- name: Install Docker
+  apt:
+    name: docker.io
+    state: present
+
+- name: Install Python
+  apt:
+    name: python3
+    state: present
+
+- name: Install pip
+  apt:
+    name: python3-pip
+    state: present
+
+- name: Install Docker Python SDK
+  pip:
+    name: docker
+
+- name: Copy Dockerfile
+  template:
+    src: Dockerfile.j2
+    dest: "{{ jupyter_dockerfile_path }}"
+  notify: Restart Jupyter container
+
+- name: Build Docker image
+  docker_image:
+    name: "{{ jupyter_image_name }}"
+    build:
+      context: "{{ playbook_dir }}"
+      dockerfile: "{{ jupyter_dockerfile_path }}"
+
+- name: Run Docker container
+  docker_container:
+    name: "{{ jupyter_container_name }}"
+    image: "{{ jupyter_image_name }}"
+    ports:
+      - "{{ jupyter_notebook_port }}:8888"
+    detach: yes

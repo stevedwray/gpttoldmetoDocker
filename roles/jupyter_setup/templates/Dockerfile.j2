@@ -1,0 +1,16 @@
+FROM python:3.9
+
+# Install Jupyter Notebook and other dependencies
+RUN pip install jupyter
+
+# Set the hashed password for Jupyter Notebook
+RUN echo "c.NotebookApp.password = '{{ jupyter_notebook_hashed_password }}'" >> ~/.jupyter/jupyter_notebook_config.py
+
+# Set the working directory
+WORKDIR /app
+
+# Expose the Jupyter Notebook port
+EXPOSE 8888
+
+# Launch Jupyter Notebook
+CMD ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
