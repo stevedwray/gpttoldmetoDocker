@@ -2,5 +2,5 @@
 jupyter_image_name: my-jupyter-image
 jupyter_container_name: my-jupyter-container
 jupyter_dockerfile_path: /tmp/Dockerfile
-jupyter_notebook_hashed_password: "8$jaI+VKZ+e1+YQl2YywcjAw$JMejeGSqRzg+vlCjx/BYITY+Cdq6AAdF6gcCW0FP5iU"
+jupyter_password: "argon2:$argon2id$v=19$m=10240,t=10,p=8$2CSUm3TsIS761WGkmuK/LA$0Iy5WFyiAgmv0y1ERufhIfoNHRExRe23q1uf83mxjSI"
 jupyter_notebook_port: 8888

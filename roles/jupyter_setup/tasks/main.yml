@@ -1,23 +1,25 @@
 ---
-- name: Create temporary directory for Docker Compose files
-  tempfile:
-    state: directory
-  register: compose_temp_dir
+- name: Install Docker Compose
+  apt:
+    name: docker-compose
+    state: present
 
 - name: Copy Dockerfile to temporary directory
   template:
     src: Dockerfile.j2
-    dest: "{{ compose_temp_dir.path }}/Dockerfile"
+    dest: "/tmp/Dockerfile"
 
-- name: Create Docker Compose file
+- name: Copy docker-compose.yml to temporary directory
   template:
     src: docker-compose.yml.j2
-    dest: "{{ compose_temp_dir.path }}/docker-compose.yml"
+    dest: "/tmp/docker-compose.yml"
 
-
-- name: Build and start Jupyter container using Docker Compose
+- name: Build and run Jupyter container using Docker Compose
   docker_compose:
-    project_src: "{{ compose_temp_dir.path }}"
-    project_name: jupyter
-    build: yes
+    project_src: "/tmp"
+    files: docker-compose.yml
     state: present
+    recreate: always
+  environment:
+    JUPYTER_PASSWORD: "{{ jupyter_password }}"
+
