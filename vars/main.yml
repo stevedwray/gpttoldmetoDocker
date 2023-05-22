@@ -1,11 +1,11 @@
 ---
 usb_device: /dev/sda
 usb_partition: /dev/sda1
-usb_mount_point: /mnt/usb
+usb_mount_point: /srv/usb
 docker_config_path: /etc/docker/daemon.json
 custom_network_file: /tmp/network.yml
 sysctl_config_file: /etc/sysctl.conf
-docker_data_dir: /mnt/usb/docker-data
+docker_data_dir: /srv/usb/docker-data
 ntp_servers:
   - 0.pool.ntp.org
   - 1.pool.ntp.org

@@ -10,10 +10,8 @@
       tags: docker_role
     - role: portainer
       tags: portainer_role
-    - role: build_container
-      tags: docker_image_build_role
-    - role: jupyter_setup
-      tags: jupyter_setup
+    - role: cowrie
+      tags: cowrie_setup
 
   vars_files:
     - vars/main.yml

@@ -1,0 +1,4 @@
+# Cowrie configuration file
+
+[ssh]
+listen_endpoints = tcp:{{ cowrie_port_mapping }}

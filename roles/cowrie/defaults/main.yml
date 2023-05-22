@@ -1,0 +1,15 @@
+---
+# Default variables for Cowrie Docker role
+
+# Cowrie Docker image
+cowrie_docker_image: "cowrie/cowrie"
+
+# Cowrie container name
+cowrie_container_name: "cowrie"
+
+# Port mapping (host:container)
+cowrie_port_mapping: "2222:2222"
+
+# Path for Cowrie logs and configuration
+cowrie_logs_path: "/srv/usb/cowrie/logs"
+cowrie_config_path: "/srv/usb/cowrie/config"

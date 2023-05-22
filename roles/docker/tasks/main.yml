@@ -64,7 +64,7 @@
 - name: Check if network exists
   command: docker network inspect {{ network_name }}
   register: network_check
-  changed_when: not check_mode
+  changed_when: is defined && not check_mode
   ignore_errors: yes
     
 - name: Create custom network

@@ -1,0 +1,11 @@
+---
+# Variables for Cowrie Docker role
+
+# Cowrie Docker image
+cowrie_docker_image: "cowrie/cowrie"
+
+# Cowrie container name
+cowrie_container_name: "cowrie"
+
+# Port mapping (host:container)
+cowrie_port_mapping: "2222:2222"

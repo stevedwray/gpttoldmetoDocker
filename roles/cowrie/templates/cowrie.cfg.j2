@@ -1,0 +1,14 @@
+# Cowrie configuration file
+
+[ssh]
+listen_endpoints = tcp:{{ cowrie_port_mapping }}
+
+[output_jsonlog]
+logfile = /cowrie/log/cowrie.json
+
+[honeypot]
+localtime = true            # Use the host's localtime for timestamps
+hostname = spankme          # Hostname of the Cowrie honeypot
+
+[telnet]
+enabled = true              # Enable or disable Telnet support

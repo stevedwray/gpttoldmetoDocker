@@ -1,0 +1,35 @@
+---
+# Tasks for Cowrie Docker role
+
+- name: Install Docker
+  apt:
+    name: docker
+    state: present
+
+- name: Pull Cowrie Docker image
+  docker_image:
+    name: "{{ cowrie_docker_image }}"
+
+- name: Create Cowrie Container
+  docker_container:
+    name: "{{ cowrie_container_name }}"
+    image: "{{ cowrie_docker_image }}"
+    ports:
+      - "{{ cowrie_port_mapping }}"
+    volumes:
+      - "{{ cowrie_logs_path }}/cowrie:/cowrie/log"
+    restart_policy: always
+    state: started
+
+- name: Copy Cowrie configuration file to target machine
+  template:
+    src: cowrie.cfg.j2
+    dest: "{{ cowrie_config_path }}/cowrie.cfg"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Restart Cowrie Container
+  docker_container:
+    name: "{{ cowrie_container_name }}"
+    state: restarted
