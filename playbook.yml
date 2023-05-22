@@ -12,6 +12,8 @@
       tags: portainer_role
     - role: cowrie
       tags: cowrie_setup
+    - role: snare
+      tags: snare_setup
 
   vars_files:
     - vars/main.yml

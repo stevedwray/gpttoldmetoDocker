@@ -1,0 +1,30 @@
+---
+- name: Create Snare volume directory
+  file:
+    path: "{{ snare_volume_path }}"
+    state: directory
+
+- name: Clone Snare Git repository
+  git:
+    repo: "https://github.com/mushorg/snare.git"
+    dest: "/usr/local/src/snare"
+    version: "main"
+
+- name: Copy index.html to Snare volume directory
+  copy:
+    src: "{{ playbook_dir }}/roles/snare/files/index.html"
+    dest: "{{ snare_volume_path }}/index.html"
+
+- name: Build and start Snare containers
+  docker_compose:
+    project_src: "/usr/local/src/snare"
+    project_name: snare
+    file: "docker-compose.yml"
+    build: true
+    state: started
+    remove_orphans: yes
+    recreate_started: yes
+    recreate_no_recreate: yes
+    recreate_always: yes
+    pull: yes
+    force_recreate: yes

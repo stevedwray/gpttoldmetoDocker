@@ -1,0 +1,6 @@
+---
+snare_container_name: "snare"
+snare_image_name: "honeynet/snare"
+snare_image_version: "latest"
+snare_volume_path: "/srv/usb/snare-data"
+snare_html: "/var/www/html"
