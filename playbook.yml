@@ -1,15 +1,14 @@
 ---
 - name: Setup Raspberry Pi for Docker
-  hosts: pi
+  hosts: pi4a
   remote_user: ansible
   gather_facts: yes
   become: true
 
   roles:
     - role: docker
-      tags: docker_role
     - role: portainer
-      tags: portainer_role
+      tags: portainer_setup
     - role: cowrie
       tags: cowrie_setup
     - role: snare
@@ -18,5 +17,3 @@
   vars_files:
     - vars/main.yml
 
-  handlers:
-    - include: handlers/main.yml

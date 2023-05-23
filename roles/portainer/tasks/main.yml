@@ -4,15 +4,6 @@
     path: "{{ portainer_data_dir }}"
     state: directory
 
-- name: Create Portainer networks
-  docker_network:
-    name: "{{ item.name }}"
-    driver: bridge
-    ipam_options:
-      subnet: "{{ item.subnet }}"
-    state: present
-  loop: "{{ portainer_networks }}"
-
 - name: Pull Portainer and agent images
   docker_image:
     name: "{{ item }}"
@@ -20,30 +11,40 @@
   loop:
     - portainer/portainer-ce:latest
     - portainer/agent:latest
+    
 
-- name: Run Portainer container
-  docker_container:
-    name: portainer-ce
-    image: portainer/portainer-ce:latest
-    state: started
-    restart_policy: unless-stopped
-    ports: "{{ portainer_ports }}"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "{{ portainer_data_dir }}:/data"
-    networks:
-      - name: Portainer_Net
-
-- name: Run Portainer agent container
-  docker_container:
-    name: portainer-agent
-    image: portainer/agent:latest
-    state: started
-    restart_policy: unless-stopped
-    ports: "{{ portainer_agent_ports }}"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "/var/lib/docker/volumes:/var/lib/docker/volumes"
-    networks:
-      - name: Portainer_Net
-      - name: Portainer_Net_Internal
+- name: Deploy Portainer with Docker Compose
+  docker_compose:
+    project_name: portainer
+    definition:
+      version: '3'
+      networks:
+        mynetwork:
+          driver: bridge
+          ipam:
+            driver: default
+            config:
+              - subnet: 192.168.1.0/24
+                gateway: 192.168.1.1
+      services:
+        portainer-ce:
+          image: portainer/portainer-ce:latest
+          restart: unless-stopped
+          network_mode: bridge
+          ports:
+            - "192.168.1.16:8000:8000"
+            - "9000:9000"
+          volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - "{{ portainer_data_dir }}:/data"
+          environment:
+            - HOST=192.168.1.17
+        portainer-agent:
+          image: portainer/agent:latest
+          restart: unless-stopped
+          ports:
+            - "9001:9001"
+          volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock"
+            - "/var/lib/docker/volumes:/var/lib/docker/volumes"
+    state: present

@@ -1,0 +1,12 @@
+---
+usb_device: /dev/sda
+usb_partition: /dev/sda1
+usb_mount_point: /srv/usb
+docker_config_path: /etc/docker/daemon.json
+custom_network_file: /tmp/network.yml
+sysctl_config_file: /etc/sysctl.conf
+docker_data_dir: /srv/usb/docker-data
+network_name: docker_network
+network_driver: macvlan
+network_ip_range: 192.168.1.128/25
+aux_addresses: 192.168.1.201-192.168.1.210

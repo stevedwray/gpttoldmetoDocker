@@ -14,15 +14,18 @@
     name:
       - docker.io
       - containerd
+      - python3-pip
+      - linux-modules-extra-raspi
+      - bridge-utils
     state: present
     update_cache: yes
-  become: true
-  become_user: root
-  become_method: sudo
-  
-- name: Install Docker SDK for Python
+    
+- name: Install Python Packages
   pip:
-    name: docker
+    name:
+      - docker
+      - docker-compose
+      - packaging
     state: present
     
 - name: Partition USB drive
@@ -61,24 +64,22 @@
     src: daemon.json.j2
     dest: "{{ docker_config_path }}"
 
-- name: Check if network exists
-  command: docker network inspect {{ network_name }}
-  register: network_check
-  changed_when: is defined && not check_mode
-  ignore_errors: yes
-    
-- name: Create custom network
-  command: docker network create \
-    --driver {{ network_driver }} \
-    --ipam-driver default \
-    --subnet {{ network_subnet }} \
-    --gateway {{ network_gateway }} \
-    --opt parent={{ network_parent }} \
-    {{ network_name }}
+- name: Add macvlan module to /etc/modules
   become: true
-  changed_when: not check_mode
-  when: network_check.rc is defined and network_check.rc != 0
-
+  lineinfile:
+    path: /etc/modules
+    line: "macvlan"
+    create: yes
+    
+- name: Render network configuration file from template
+  template:
+    src: netplan.j2
+    dest: /etc/netplan/01-netcfg.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Apply network configuration changes
+ 
 - name: Enable and start Docker service
   systemd:
     name: docker

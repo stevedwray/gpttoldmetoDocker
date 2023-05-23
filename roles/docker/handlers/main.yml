@@ -3,11 +3,15 @@
   systemd:
     name: docker
     state: restarted
-    
+
 - name: Apply sysctl changes
   command: sysctl -p "{{ sysctl_config_file }}"
-
-- name: Restart systemd-timesyncd Service
+  
+- name: Restart timesyncd
   systemd:
     name: systemd-timesyncd
     state: restarted
+
+- name: Apply network configuration changes
+  command: netplan apply
+      

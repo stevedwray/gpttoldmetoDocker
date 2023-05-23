@@ -1,18 +1,13 @@
 ---
-usb_device: /dev/sda
-usb_partition: /dev/sda1
-usb_mount_point: /srv/usb
-docker_config_path: /etc/docker/daemon.json
-custom_network_file: /tmp/network.yml
-sysctl_config_file: /etc/sysctl.conf
-docker_data_dir: /srv/usb/docker-data
 ntp_servers:
   - 0.pool.ntp.org
   - 1.pool.ntp.org
   - 2.pool.ntp.org
   - 3.pool.ntp.org
-network_name: my_network
-network_driver: macvlan
-network_parent: eth0
+physical_nic: eth0
 network_subnet: 192.168.1.0/24
 network_gateway: 192.168.1.1
+dns_server_address: 192.168.1.14
+primary_interface_mac_address: dc:a6:32:52:a9:87
+macvlan_interface_address: 192.168.1.16
+pi4a_addr: 192.168.1.15
