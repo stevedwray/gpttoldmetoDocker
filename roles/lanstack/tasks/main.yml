@@ -1,0 +1,55 @@
+---
+- name: Include encrypted secret file
+  include_vars: secret.yml
+  
+- name: Ensure cifs-utils is installed
+  ansible.builtin.package:
+    name: cifs-utils
+    state: present
+        
+- name: Ensure the mount points exist
+  ansible.builtin.file:
+    path: "{{ item.target }}"
+    state: directory
+  loop: "{{ smb_mounts }}"
+    
+- name: Ensure the mount points are mounted
+  ansible.posix.mount:
+    path: "{{ item.target }}"
+    src: "{{ item.source }}"
+    fstype: cifs
+    opts: credentials=/root/.smbcredentials
+    state: mounted
+  loop: "{{ smb_mounts }}"
+
+- name: Deploy Pi-hole container
+  ansible.builtin.docker_container:
+    name: pihole
+    image: pihole/pihole:latest
+    volumes:
+      - /srv/usb/pihole/etc-pihole/:/etc/pihole/
+      - /srv/usb/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/
+    ports:
+      - "{{ pihole.ip }}:80:80"
+      - "{{ pihole.ip }}:53:53/tcp"
+      - "{{ pihole.ip }}:53:53/udp"
+    env:
+      ADMIN_EMAIL: stevedwray@gmail.com
+      WEBPASSWORD: "{{ web_password }}"
+      BLOCKING_ENABLED: 'true'
+      CACHE_SIZE: '9999'
+      DNSMASQ_LISTENING: single
+      DNS_FQDN_REQUIRED: 'true'
+      PIHOLE_DOMAIN: lan.local
+      QUERY_LOGGING: 'true'
+      DNS1: '8.8.8.8'
+      DNS2: '8.8.4.4'
+      DNSSEC: 'false'
+      DNS_BOGUS_PRIV: 'true'
+      CONDITIONAL_FORWARDING: 'false'
+      ServerIP: '192.168.1.14'
+    networks:
+      - name: ipvlan_net
+        ipv4_address: 192.168.2.254
+    state: present
+    # recreate: true # the default is smart, which is better but which cannot be expressed in the configuration
