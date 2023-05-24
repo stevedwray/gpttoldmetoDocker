@@ -8,7 +8,9 @@
     insertafter: EOF
     regexp: "^NTP=.*"
   notify: Restart timesyncd
- 
+
+# There might need to be a delay after this for time to sync?
+  
 - name: Install Docker and required packages
   apt:
     name:
@@ -59,27 +61,31 @@
     path: "{{ docker_data_dir }}"
     state: directory
 
-- name: Copy Docker configuration files to USB drive
+- name: Copy Docker configuration files
   template:
     src: daemon.json.j2
     dest: "{{ docker_config_path }}"
+  tags:
+    - daemon.json
 
-- name: Add macvlan module to /etc/modules
+- name: Add ipvlan module to /etc/modules
   become: true
   lineinfile:
     path: /etc/modules
-    line: "macvlan"
+    line: "ipvlan"
     create: yes
+
+- name: Create IPvlan network
+  docker_network:
+    name: my_ipvlan_network
+    driver: ipvlan
+    driver_options:
+      ipvlan_mode: l3
+      parent: eth0
+    ipam_config:
+      - subnet: 192.168.2.0/24
+        gateway: 192.168.2.1
     
-- name: Render network configuration file from template
-  template:
-    src: netplan.j2
-    dest: /etc/netplan/01-netcfg.yaml
-    owner: root
-    group: root
-    mode: "0644"
-  notify: Apply network configuration changes
- 
 - name: Enable and start Docker service
   systemd:
     name: docker

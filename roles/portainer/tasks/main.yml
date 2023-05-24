@@ -19,32 +19,31 @@
     definition:
       version: '3'
       networks:
-        mynetwork:
+        macvlan_net:
+          external: true
+        internal:
           driver: bridge
-          ipam:
-            driver: default
-            config:
-              - subnet: 192.168.1.0/24
-                gateway: 192.168.1.1
       services:
         portainer-ce:
           image: portainer/portainer-ce:latest
           restart: unless-stopped
-          network_mode: bridge
-          ports:
-            - "192.168.1.16:8000:8000"
-            - "9000:9000"
+          networks:
+            - macvlan_net
+            - internal
           volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - "{{ portainer_data_dir }}:/data"
-          environment:
-            - HOST=192.168.1.17
         portainer-agent:
           image: portainer/agent:latest
           restart: unless-stopped
-          ports:
-            - "9001:9001"
+          networks:
+            - internal
           volumes:
             - "/var/run/docker.sock:/var/run/docker.sock"
             - "/var/lib/docker/volumes:/var/lib/docker/volumes"
     state: present
+
+# - name: Assign static IP to portainer-ce container
+#   ansible.builtin.command: docker network connect --ip 192.168.2.15 macvlan_net portainer_portainer-ce_1
+#   args:
+#     creates: /var/run/docker.sock
