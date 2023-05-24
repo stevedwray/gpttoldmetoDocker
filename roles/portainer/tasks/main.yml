@@ -1,4 +1,7 @@
 ---
+- name: Include encrypted secret file
+  include_vars: secret.yml
+  
 - name: Create Portainer data directory
   file:
     path: "{{ portainer_data_dir }}"
@@ -13,37 +16,37 @@
     - portainer/agent:latest
     
 
-- name: Deploy Portainer with Docker Compose
+- name: Deploy Portainer using Docker Compose
   docker_compose:
     project_name: portainer
     definition:
       version: '3'
-      networks:
-        macvlan_net:
-          external: true
-        internal:
-          driver: bridge
       services:
         portainer-ce:
-          image: portainer/portainer-ce:latest
-          restart: unless-stopped
-          networks:
-            - macvlan_net
-            - internal
+          image: portainer/portainer-ce
           volumes:
             - /var/run/docker.sock:/var/run/docker.sock
-            - "{{ portainer_data_dir }}:/data"
-        portainer-agent:
-          image: portainer/agent:latest
-          restart: unless-stopped
           networks:
-            - internal
+            - portainer-net
+            - ipvlan_net
+          ports:
+            - '{{ portainer_ipvlan }}:9000:9000'
+          environment:
+            - AGENT_SECRET="{{ agent_secret }}"
+          networks:
+            ipvlan_net:
+              ipv4_address: "{{ portainer_ipvlan }}"
+        portainer-agent:
+          image: portainer/agent
           volumes:
-            - "/var/run/docker.sock:/var/run/docker.sock"
-            - "/var/lib/docker/volumes:/var/lib/docker/volumes"
-    state: present
-
-# - name: Assign static IP to portainer-ce container
-#   ansible.builtin.command: docker network connect --ip 192.168.2.15 macvlan_net portainer_portainer-ce_1
-#   args:
-#     creates: /var/run/docker.sock
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/lib/docker/volumes:/var/lib/docker/volumes
+          networks:
+            - portainer-net
+          environment:
+            - AGENT_SECRET="{{ agent_secret }}"
+      networks:
+        portainer-net:
+        ipvlan_net:
+          external:
+            name: ipvlan_net

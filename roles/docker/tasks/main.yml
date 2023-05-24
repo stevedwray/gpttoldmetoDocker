@@ -77,14 +77,15 @@
 
 - name: Create IPvlan network
   docker_network:
-    name: my_ipvlan_network
+    name: "{{ ipvlan_name }}"
+
     driver: ipvlan
     driver_options:
       ipvlan_mode: l3
-      parent: eth0
+      parent: "{{ ipvlan_parent }}"
     ipam_config:
-      - subnet: 192.168.2.0/24
-        gateway: 192.168.2.1
+      - subnet: "{{ ipvlan_network }}"
+        gateway: "{{ ipvlan_gateway }}"
     
 - name: Enable and start Docker service
   systemd:

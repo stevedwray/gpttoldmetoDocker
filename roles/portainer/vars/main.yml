@@ -10,3 +10,4 @@ portainer_ports:
   - "9000:9000"
 portainer_agent_ports:
   - "9001:9001"
+portainer_ipvlan: 192.168.2.15
