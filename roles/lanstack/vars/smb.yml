@@ -1,0 +1,21 @@
+---
+nas: 192.168.1.8
+smb:
+  uid: ansible
+  gid: ansible
+  mounts:
+    - share: Movies
+      target: /srv/media/gazaar/movies
+    - share: TV
+      target: /srv/media/gazaar/tv
+    - share: Games
+      target: /srv/media/gazaar/games
+    - share: Pictures
+      target: /srv/media/gazaar/photos
+    - share: Documents
+      target: /srv/media/gazaar/documents
+    - share: HomeMovies
+      target: /srv/media/gazaar/homemovies
+    - share: Torrents
+      target: /srv/media/gazaar/torrents
+      

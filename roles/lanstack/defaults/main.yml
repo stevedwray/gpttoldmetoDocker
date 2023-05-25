@@ -1,61 +1,21 @@
 ---
-# Default variables for pihole
-pihole:
-  ip: 192.168.2.254
-  environment:
-    ADMIN_EMAIL: stevedwray@gmail.com
-    WEBPASSWORD: Jahqu3maeGhe6
-    BLOCKING_ENABLED: true
-    CACHE_SIZE: 9999
-    DNSMASQ_LISTENING: single
-    DNS_FQDN_REQUIRED: true
-    PIHOLE_DOMAIN: lan.local
-    QUERY_LOGGING: true
-    DNS1: 8.8.8.8
-    DNS2: 8.8.4.4
-    DNSSEC: false
-    DNS_BOGUS_PRIV: true
-    CONDITIONAL_FORWARDING: false
-    ServerIP: 192.168.1.14
-  volumes:
-    - /srv/usb/pihole/etc-pihole/:/etc/pihole/
-    - /srv/usb/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/
-  dns:
-    - 192.168.1.1
-
-# Default variables for registry
-registry:
-  ip: 192.168.2.2
-  volumes:
-    - /srv/usb/registry/data:/var/lib/registry
-    - /srv/usb/registry/certs:/certs
-    - /srv/usb/registry/auth:/auth
-
-# Default variables for deluge
-deluge:
-  image: lscr.io/linuxserver/deluge:latest
-  volumes:
-    - /srv/usb/deluge/config:/config
-    - /srv/media/gazaar/torrents/deluge:/downloads
-  ports:
-    - 8112:8112
-    - 6881:6881
-    - 6881:6881/udp
-
-# Default variables for SMB mounts
-smb_mounts:
-  - source: //192.168.1.8/Movies
-    target: /srv/media/gazaar/movies
-  - source: //192.168.1.8/TV
-    target: /srv/media/gazaar/tv
-  - source: //192.168.1.8/Games
-    target: /srv/media/gazaar/games
-  - source: //192.168.1.8/Pictures
-    target: /srv/media/gazaar/photos
-  - source: //192.168.1.8/Documents
-    target: /srv/media/gazaar/documents
-  - source: //192.168.1.8/HomeMovies
-    target: /srv/media/gazaar/homemovies
-  - source: //192.168.1.8/Torrents
-    target: /srv/media/gazaar/torrents
-
+vars:
+  smb:
+    uid: ansible
+    gid: ansible
+    nas: 192.168.1.8
+    mounts:
+      - source: //{{ smb.nas }}/Movies
+        target: /srv/media/gazaar/movies
+      - source: //{{ smb.nas }}/TV
+        target: /srv/media/gazaar/tv
+      - source: //{{ smb.nas }}/Games
+        target: /srv/media/gazaar/games
+      - source: //{{ smb.nas }}/Pictures
+        target: /srv/media/gazaar/photos
+      - source: //{{ smb.nas }}/Documents
+        target: /srv/media/gazaar/documents
+      - source: //{{ smb.nas }}/HomeMovies
+        target: /srv/media/gazaar/homemovies
+      - source: //{{ smb.nas }}/Torrents
+        target: /srv/media/gazaar/torrents

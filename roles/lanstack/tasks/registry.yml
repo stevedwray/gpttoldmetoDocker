@@ -1,0 +1,45 @@
+---
+- name: Include vars for registry
+  include_vars:
+    file: registry.yml
+
+- name: Create certificates directory
+  file:
+    path: "{{ registry.volumes.certs }}"
+    state: directory
+
+- name: Generate self-signed TLS certificate and key
+  openssl_privatekey:
+    path: "{{ registry.volumes.certs }}/registry.key"
+    size: 2048
+    type: RSA
+    mode: '0600'
+
+- name: Generate self-signed TLS certificate
+  openssl_certificate:
+    path: "{{ registry.volumes.certs }}/registry.crt"
+    privatekey_path: "{{ registry.volumes.certs }}/registry.key"
+    provider: selfsigned
+    force: yes
+
+- name: Create auth directory
+  file:
+    path: "{{ registry.volumes.auth }}"
+    state: directory
+    
+- name: Install passlib library
+  package:
+    name:
+      - python3-passlib
+    state: present
+
+- name: Generate htpasswd file
+  community.general.htpasswd:
+    path: "{{ registry.volumes.auth }}/htpasswd"
+    name: "{{ registry_username }}"
+    password: "{{ registry_password }}"
+    state: present
+    mode: '0600'
+    owner: root
+    group: www-data
+

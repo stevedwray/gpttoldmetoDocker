@@ -1,55 +1,95 @@
 ---
 - name: Include encrypted secret file
   include_vars: secret.yml
-  
-- name: Ensure cifs-utils is installed
-  ansible.builtin.package:
-    name: cifs-utils
-    state: present
-        
-- name: Ensure the mount points exist
-  ansible.builtin.file:
-    path: "{{ item.target }}"
-    state: directory
-  loop: "{{ smb_mounts }}"
-    
-- name: Ensure the mount points are mounted
-  ansible.posix.mount:
-    path: "{{ item.target }}"
-    src: "{{ item.source }}"
-    fstype: cifs
-    opts: credentials=/root/.smbcredentials
-    state: mounted
-  loop: "{{ smb_mounts }}"
 
-- name: Deploy Pi-hole container
-  ansible.builtin.docker_container:
-    name: pihole
-    image: pihole/pihole:latest
-    volumes:
-      - /srv/usb/pihole/etc-pihole/:/etc/pihole/
-      - /srv/usb/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/
-    ports:
-      - "{{ pihole.ip }}:80:80"
-      - "{{ pihole.ip }}:53:53/tcp"
-      - "{{ pihole.ip }}:53:53/udp"
-    env:
-      ADMIN_EMAIL: stevedwray@gmail.com
-      WEBPASSWORD: "{{ web_password }}"
-      BLOCKING_ENABLED: 'true'
-      CACHE_SIZE: '9999'
-      DNSMASQ_LISTENING: single
-      DNS_FQDN_REQUIRED: 'true'
-      PIHOLE_DOMAIN: lan.local
-      QUERY_LOGGING: 'true'
-      DNS1: '8.8.8.8'
-      DNS2: '8.8.4.4'
-      DNSSEC: 'false'
-      DNS_BOGUS_PRIV: 'true'
-      CONDITIONAL_FORWARDING: 'false'
-      ServerIP: '192.168.1.14'
-    networks:
-      - name: ipvlan_net
-        ipv4_address: 192.168.2.254
-    state: present
-    # recreate: true # the default is smart, which is better but which cannot be expressed in the configuration
+- name: Include pihole tasks
+  include_tasks: pihole.yml
+  
+- name: Include registry tasks
+  include_tasks: registry.yml
+  
+- name: Include smb tasks
+  include_tasks: smb.yml
+  
+- name: Include deluge tasks
+  include_tasks: deluge.yml
+  
+- name: Deploy Lanstack containers using Docker Compose
+  tags: compose
+  docker_compose:
+    project_name: lanstack
+    definition:
+      version: '3'
+      services:
+
+        deluge:
+          image: "{{ deluge.image }}"
+          container_name: deluge
+          environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Pacific/Auckland
+            - DELUGE_LOGLEVEL=error
+          volumes:
+            - "{{ deluge.volumes.config }}:/config"
+            - "{{ deluge.volumes.downloads }}:/downloads"
+          ports:
+            - "{{ deluge.ip }}:8112:8112"
+            - "{{ deluge.ip }}:6881:6881"
+            - "{{ deluge.ip }}:6881:6881/udp"
+          networks:
+            ipvlan_net:
+              ipv4_address: "{{ deluge.ip }}"
+          restart: unless-stopped
+        
+        registry:
+          image: registry:latest
+          ports:
+            - "{{ registry.ip }}:443:443"
+          volumes:
+            - "{{ registry.volumes.data }}:/var/lib/registry"
+            - "{{ registry.volumes.certs }}:/certs"
+            - "{{ registry.volumes.auth }}:/auth"
+          environment:
+            REGISTRY_HTTP_ADDR: 0.0.0.0:443
+            REGISTRY_HTTP_TLS_CERTIFICATE: /certs/registry.crt
+            REGISTRY_HTTP_TLS_KEY: /certs/registry.key
+            REGISTRY_AUTH: htpasswd
+            REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+            REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          networks:
+            ipvlan_net:
+              ipv4_address: "{{ registry.ip }}"
+          restart: always
+          
+        pihole:
+          image: pihole/pihole:latest
+          volumes:
+            - "{{ pihole.dirs.etc }}:/etc/pihole/"
+            - "{{ pihole.dirs.etc }}/dnsmasq.d/:/etc/dnsmasq.d/"
+          ports:
+            - "{{ pihole.ip }}:80:80"
+            - "{{ pihole.ip }}:53:53/tcp"
+            - "{{ pihole.ip }}:53:53/udp"
+          environment:
+            ADMIN_EMAIL: stevedwray@gmail.com
+            WEBPASSWORD: "{{ web_password }}"
+            BLOCKING_ENABLED: "true"
+            CACHE_SIZE: 9999
+            DNSMASQ_LISTENING: single
+            DNS_FQDN_REQUIRED: "true"
+            PIHOLE_DOMAIN: lan.local
+            QUERY_LOGGING: "true"
+            DNS1: 8.8.8.8
+            DNS2: 8.8.4.4
+            DNSSEC: "false"
+            DNS_BOGUS_PRIV: "true"
+            CONDITIONAL_FORWARDING: "false"
+            ServerIP: 192.168.1.14
+          networks:
+            ipvlan_net:
+              ipv4_address: "{{ pihole.ip }}"
+      networks:
+        ipvlan_net:
+          external:
+            name: ipvlan_net

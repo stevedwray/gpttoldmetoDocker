@@ -1,0 +1,12 @@
+---
+- name: Include vars for deluge
+  include_vars:
+    file: deluge.yml
+    
+- name: Create Deluge directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ deluge.volumes.config }}"
+

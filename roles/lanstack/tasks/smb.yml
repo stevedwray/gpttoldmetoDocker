@@ -1,0 +1,29 @@
+---
+- name: Include vars for smb
+  include_vars:
+    file: smb.yml
+    
+- name: Ensure cifs-utils is installed
+  ansible.builtin.package:
+    name: cifs-utils
+    state: present
+
+- name: Ensure the mount points exist
+  ansible.builtin.file:
+    path: "{{ item.target }}"
+    state: directory
+  loop: "{{ smb.mounts }}"
+
+- name: Ensure the mount points are mounted
+  ansible.posix.mount:
+    path: "{{ item.target }}"
+    src: "//{{ nas }}/{{ item.share }}"
+    fstype: cifs
+    opts: |
+      credentials=/root/.smbcredentials,
+      uid={{ smb.uid }},
+      gid={{ smb.gid }},
+      file_mode=0770,
+      dir_mode=0770
+    state: mounted
+  loop: "{{ smb.mounts }}"

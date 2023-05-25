@@ -1,0 +1,8 @@
+---
+# Default variables for deluge
+deluge:
+  ip: 192.168.2.3
+  image: lscr.io/linuxserver/deluge:latest
+  volumes:
+    config: /srv/usb/deluge/config
+    downloads: /srv/media/gazaar/torrents

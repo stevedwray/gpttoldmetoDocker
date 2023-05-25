@@ -1,0 +1,10 @@
+---
+- name: Include vars for pihole
+  include_vars:
+    file: pihole.yml
+
+- name: Ensure pihole etc directories exist
+  file:
+    path: "{{ item.value }}"
+    state: directory
+  loop: "{{ pihole.dirs | dict2items }}"
