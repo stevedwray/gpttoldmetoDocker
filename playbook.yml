@@ -16,7 +16,9 @@
       tags: snare_setup
     - role: lanstack
       tags: lanstack_setup
-
+    - role: jupyterlab
+      tags: jupyterlab_setup
+      
   vars_files:
     - vars/main.yml
 
