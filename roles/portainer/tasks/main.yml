@@ -23,6 +23,7 @@
       version: '3'
       services:
         portainer-ce:
+          restart: always
           image: portainer/portainer-ce
           volumes:
             - /var/run/docker.sock:/var/run/docker.sock
@@ -37,6 +38,7 @@
             ipvlan_net:
               ipv4_address: "{{ portainer_ipvlan }}"
         portainer-agent:
+          restart: always
           image: portainer/agent
           volumes:
             - /var/run/docker.sock:/var/run/docker.sock

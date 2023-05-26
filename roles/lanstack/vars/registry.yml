@@ -1,8 +1,13 @@
----
 # Default variables for registry
 registry:
+  subject_alt_name: registry.lan.local
   ip: 192.168.2.2
   volumes:
     data: /srv/usb/registry/data
     certs: /srv/usb/registry/certs
     auth: /srv/usb/registry/auth
+  c: NZ
+  st: Wellington
+  l: Wellington
+  o: Stephen Wray
+  ou: ChatGPT Docker

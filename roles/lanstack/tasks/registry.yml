@@ -8,20 +8,54 @@
     path: "{{ registry.volumes.certs }}"
     state: directory
 
-- name: Generate self-signed TLS certificate and key
-  openssl_privatekey:
-    path: "{{ registry.volumes.certs }}/registry.key"
+- name: Ensure necessary directories exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ registry.volumes.certs }}"
+    - "{{ registry.volumes.auth }}"
+  become: yes
+
+- name: Generate a private key
+  community.crypto.openssl_privatekey:
+    path: "{{ registry.volumes.certs }}/private.key"
     size: 2048
-    type: RSA
-    mode: '0600'
+  become: yes
 
-- name: Generate self-signed TLS certificate
-  openssl_certificate:
+- name: Generate CSR
+  community.crypto.openssl_csr:
+    path: "{{ registry.volumes.certs }}/registry.csr"
+    privatekey_path: "{{ registry.volumes.certs }}/private.key"
+    common_name: "{{ registry.subject_alt_name }}"
+    country_name: "{{ registry.c }}"
+    state_or_province_name: "{{ registry.st }}"
+    locality_name: "{{ registry.l }}"
+    organization_name: "{{ registry.o }}"
+    organizational_unit_name: "{{ registry.ou }}"
+  become: yes
+
+- name: Generate a self-signed certificate
+  community.crypto.x509_certificate:
     path: "{{ registry.volumes.certs }}/registry.crt"
-    privatekey_path: "{{ registry.volumes.certs }}/registry.key"
+    privatekey_path: "{{ registry.volumes.certs }}/private.key"
+    csr_path: "{{ registry.volumes.certs }}/registry.csr"
     provider: selfsigned
-    force: yes
-
+    selfsigned_not_after: "+3650d"
+    selfsigned_not_before: "+0s"
+    selfsigned_version: 3
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+  
+- name: Restart Docker service on Docker host
+  service:
+    name: docker
+    state: restarted
+  when: ansible_os_family == 'Debian'
+  
 - name: Create auth directory
   file:
     path: "{{ registry.volumes.auth }}"

@@ -1,0 +1,10 @@
+[req_distinguished_name]
+C = {{ registry.c }}
+ST = {{ registry.st }}
+L = {{ registry.l }}
+O = {{ registry.o }}
+OU = {{ registry.ou }}
+CN = registry.lan.local
+
+[v3_req]
+subjectAltName = DNS:registry.lan.local
