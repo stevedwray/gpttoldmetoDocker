@@ -40,7 +40,8 @@
       version: '3'
       services:
         jupyter:
-          image: bitnami/jupyter-base-notebook:latest
+          image: 192.168.1.14:5000/my-jupyter-labs:arm64
+          #image: bitnami/jupyter-base-notebook:latest
           ports:
             - "{{ jupyter.ip}}:443:8888"
           environment:
