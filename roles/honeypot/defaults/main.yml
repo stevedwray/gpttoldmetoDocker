@@ -1,0 +1,16 @@
+---
+# Default variables for the Honeypot role
+honeypot:
+  build:
+    tanner:
+      host: argon01
+      build_dir: /srv/build/tanner
+      repo_url: https://github.com/mushorg/tanner.git
+      repo_version: master
+  tanner:
+    host: pi4a
+    image_name: 192.168.1.14:5000/tanner
+    image_tag: latest
+    data_dir: /srv/usb/tanner/data
+    tanner_ip: 192.168.2.7
+    network_name: ipvlan-net
