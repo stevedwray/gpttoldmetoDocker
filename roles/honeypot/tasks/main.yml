@@ -10,6 +10,22 @@
     - docker-ce-cli
     - containerd.io
     - python3-dev
+    - pip
+    
+- name: Install Docker library
+  delegate_to: "{{ honeypot.build.tanner.host }}"
+  pip:
+    name: docker
+    executable: pip
+    state: present
+    
+- name: Install docker-compose library
+  delegate_to: "{{ honeypot.build.tanner.host }}"
+  pip:
+    name: docker-compose
+    executable: pip
+    state: present
+
 
 - name: Create build directory on argon01
   delegate_to: "{{ honeypot.build.tanner.host }}"
@@ -18,23 +34,20 @@
     state: directory
     mode: '0755'
 
-- name: Clone Tanner repository on argon01
-  delegate_to: "{{ honeypot.build.tanner.host }}"
-  git:
-    repo: "{{ honeypot.build.tanner.repo_url }}"
-    dest: "{{ honeypot.build.tanner.build_dir }}"
-    version: "{{ honeypot.build.tanner.repo_version }}"
-    clone: yes
-    update: no
+# - name: Clone Tanner repository on argon01
+#   delegate_to: "{{ honeypot.build.tanner.host }}"
+#   git:
+#     repo: "{{ honeypot.build.tanner.repo_url }}"
+#     dest: "{{ honeypot.build.tanner.build_dir }}"
+#     version: "{{ honeypot.build.tanner.repo_version }}"
+#     clone: yes
+#     update: no
 
-- name: Build and tag Tanner Docker image on argon01
+- name: Run docker-compose to build the container image
   delegate_to: "{{ honeypot.build.tanner.host }}"
-  docker_image:
-    build:
-      context: "{{ honeypot.build.tanner.build_dir }}/docker"
-      dockerfile: Dockerfile
-    name: "{{ honeypot.tanner.image_name }}"
-    tag: "{{ honeypot.tanner.image_tag }}"
+  docker_compose:
+    project_src: "{{ honeypot.build.tanner.build_dir }}/docker"
+    project_name: tanner
 
 - name: Push Tanner Docker image to registry on argon01
   delegate_to: "{{ honeypot.build.tanner.host }}"
