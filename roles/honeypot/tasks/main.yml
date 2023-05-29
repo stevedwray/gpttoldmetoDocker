@@ -40,6 +40,8 @@
 #     repo: "{{ honeypot.build.tanner.repo_url }}"
 #     dest: "{{ honeypot.build.tanner.build_dir }}"
 #     version: "{{ honeypot.build.tanner.repo_version }}"
+#     single_branch: yes
+#     version: master
 #     clone: yes
 #     update: no
 
@@ -49,12 +51,22 @@
     project_src: "{{ honeypot.build.tanner.build_dir }}/docker"
     project_name: tanner
 
+- name: Add tag latest to image
+  delegate_to: "{{ honeypot.build.tanner.host }}"
+  community.docker.docker_image:
+    name: tanner_tanner:latest
+    repository: "{{ honeypot.tanner.image_name }}"
+    force_tag: true
+    source: local
+    
 - name: Push Tanner Docker image to registry on argon01
   delegate_to: "{{ honeypot.build.tanner.host }}"
   docker_image:
-    name: "{{ honeypot.tanner.image_name }}"
-    tag: "{{ honeypot.tanner.image_tag }}"
+    name: tanner_tanner:latest
+    repository: 192.168.1.14:5000/tanner
+    tag: latest
     push: yes
+    source: local
 
 - name: Ensure required directories exist on pi4a
   delegate_to: "{{ honeypot.tanner.host }}"
@@ -65,12 +77,20 @@
 
 - name: Deploy and start Tanner Docker container on pi4a
   delegate_to: "{{ honeypot.tanner.host }}"
-  docker_container:
-    name: tanner
-    image: "{{ honeypot.tanner.image_name }}:{{ honeypot.tanner.image_tag }}"
-    volumes:
-      - "{{ honeypot.tanner.data_dir }}:/data"
-    networks:
-      "{{ honeypot.tanner.network_name }}":
-        ipv4_address: "{{ honeypot.tanner.tanner_ip }}"
-    restart_policy: unless-stopped
+  docker_compose:
+    project_name: honeypot
+    state: present
+    definition:
+      version: '3'
+      networks:
+        ipvlan_net:
+          external: true
+      services:
+        tanner:
+          image: 192.168.1.14:5000/tanner:latest
+          volumes:
+            - "{{ honeypot.tanner.data_dir }}:/data"
+          networks:
+            ipvlan_net:
+              ipv4_address: "{{ honeypot.tanner.tanner_ip }}"
+          restart: unless-stopped

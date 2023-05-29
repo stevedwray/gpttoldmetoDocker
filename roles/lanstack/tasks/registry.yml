@@ -1,14 +1,14 @@
 ---
-- name: Include vars for registry
+- name: Include vars for registry (Registry)
   include_vars:
     file: registry.yml
 
-- name: Create certificates directory
+- name: Create certificates directory (Registry)
   file:
     path: "{{ registry.volumes.certs }}"
     state: directory
 
-- name: Ensure necessary directories exist
+- name: Ensure necessary directories exist (Registry)
   file:
     path: "{{ item }}"
     state: directory
@@ -18,16 +18,16 @@
     - "{{ registry.volumes.auth }}"
   become: yes
 
-- name: Generate a private key
+- name: Generate a private key (Registry)
   community.crypto.openssl_privatekey:
-    path: "{{ registry.volumes.certs }}/private.key"
+    path: /srv/usb/registry/certs/private.key
     size: 2048
   become: yes
 
-- name: Generate CSR
+- name: Generate CSR (Registry)
   community.crypto.openssl_csr:
-    path: "{{ registry.volumes.certs }}/registry.csr"
-    privatekey_path: "{{ registry.volumes.certs }}/private.key"
+    path: /srv/usb/registry/certs/registry.csr
+    privatekey_path: /srv/usb/registry/certs/private.key
     common_name: "{{ registry.subject_alt_name }}"
     country_name: "{{ registry.c }}"
     state_or_province_name: "{{ registry.st }}"
@@ -36,11 +36,11 @@
     organizational_unit_name: "{{ registry.ou }}"
   become: yes
 
-- name: Generate a self-signed certificate
+- name: Generate a self-signed certificate (Registry)
   community.crypto.x509_certificate:
-    path: "{{ registry.volumes.certs }}/registry.crt"
-    privatekey_path: "{{ registry.volumes.certs }}/private.key"
-    csr_path: "{{ registry.volumes.certs }}/registry.csr"
+    path: /srv/usb/registry/certs/registry.crt
+    privatekey_path: /srv/usb/registry/certs/private.key
+    csr_path: /srv/usb/registry/certs/registry.csr
     provider: selfsigned
     selfsigned_not_after: "+3650d"
     selfsigned_not_before: "+0s"
@@ -50,24 +50,18 @@
     mode: '0644'
   become: yes
   
-- name: Restart Docker service on Docker host
-  service:
-    name: docker
-    state: restarted
-  when: ansible_os_family == 'Debian'
-  
-- name: Create auth directory
+- name: Create auth directory (Registry)
   file:
     path: "{{ registry.volumes.auth }}"
     state: directory
     
-- name: Install passlib library
+- name: Install passlib library (Registry)
   package:
     name:
       - python3-passlib
     state: present
 
-- name: Generate htpasswd file
+- name: Generate htpasswd file (Registry)
   community.general.htpasswd:
     path: "{{ registry.volumes.auth }}/htpasswd"
     name: "{{ registry_username }}"

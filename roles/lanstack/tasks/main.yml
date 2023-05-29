@@ -1,26 +1,39 @@
 ---
-- name: Include encrypted secret file
+- name: Include encrypted secret file (LanStack)
   include_vars: secret.yml
 
-- name: Include pihole tasks
+- name: Include pihole tasks (LanStack)
   include_tasks: pihole.yml
+  tags: pihole
   
-- name: Include registry tasks
+- name: Include registry tasks (LanStack)
   include_tasks: registry.yml
+  tags: registry
   
-- name: Include smb tasks
+- name: Include smb tasks (LanStack)
   include_tasks: smb.yml
+  tags: smb
   
-- name: Include deluge tasks
+- name: Include deluge tasks (LanStack)
   include_tasks: deluge.yml
+  tags: deluge
   
-- name: Deploy Lanstack containers using Docker Compose
-  tags: compose
+- name: Deploy Lanstack containers using Docker Compose (LanStack)
+  tags:
+    - compose
+    - deluge
+    - pihole
+    - smb
+    - registry
   docker_compose:
     project_name: lanstack
     state: present
     definition:
       version: '3'
+      networks:
+        ipvlan_net:
+          external:
+            name: ipvlan_net
       services:
         registry:
           restart: always
@@ -30,12 +43,13 @@
             - "{{ registry.volumes.certs }}:/certs"
             - "{{ registry.volumes.auth }}:/auth"
           environment:
-            REGISTRY_HTTP_ADDR: 0.0.0.0:5000
-            REGISTRY_HTTP_TLS_CERTIFICATE: /certs/registry.crt
-            REGISTRY_HTTP_TLS_KEY: /certs/registry.key
-            REGISTRY_AUTH: htpasswd
-            REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
-            REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+            REGISTRY_AUTH: none
+            # REGISTRY_HTTP_ADDR: 0.0.0.0:443
+            # REGISTRY_HTTP_TLS_CERTIFICATE: /certs/registry.crt
+            # REGISTRY_HTTP_TLS_KEY: /certs/registry.key
+            # REGISTRY_AUTH: htpasswd
+            # REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+            # REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           networks:
             ipvlan_net:
               ipv4_address: "{{ registry.ip }}"
@@ -88,7 +102,3 @@
           networks:
             ipvlan_net:
               ipv4_address: "{{ pihole.ip }}"
-      networks:
-        ipvlan_net:
-          external:
-            name: ipvlan_net
