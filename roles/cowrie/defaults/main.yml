@@ -8,8 +8,10 @@ cowrie_docker_image: "cowrie/cowrie"
 cowrie_container_name: "cowrie"
 
 # Port mapping (host:container)
-cowrie_port_mapping: "2222:2222"
+cowrie_port_mapping: "22:22"
 
 # Path for Cowrie logs and configuration
 cowrie_logs_path: "/srv/usb/cowrie/logs"
 cowrie_config_path: "/srv/usb/cowrie/config"
+
+cowrie_ip: 192.168.2.8
