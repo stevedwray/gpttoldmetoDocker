@@ -1,9 +1,0 @@
----
-snare_container_name: "snare"
-snare_image_name: "honeynet/snare"
-snare_image_version: "latest"
-snare_volume_path: "/srv/usb/snare-data"
-snare_html: "/var/www/html"
-snare_local_src: "/usr/local/src/snare"
-snare_repo: "https://github.com/mushorg/snare.git"
-page_url: "https://google.com"

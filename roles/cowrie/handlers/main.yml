@@ -1,7 +1,0 @@
----
-# Handlers for Cowrie Docker role
-
-- name: Restart Cowrie Container
-  docker_container:
-    name: "{{ cowrie_container_name }}"
-    state: restarted

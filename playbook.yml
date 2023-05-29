@@ -10,14 +10,10 @@
       tags: docker_setup
     - role: portainer
       tags: portainer_setup
-    - role: cowrie
-      tags: cowrie_setup
     - role: lanstack
       tags: lanstack_setup
     - role: jupyterlab
       tags: jupyterlab_setup
-    - role: honeypot
-      tags: honeypot_setup
       
   vars_files:
     - vars/main.yml
