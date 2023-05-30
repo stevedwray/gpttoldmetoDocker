@@ -1,9 +1,9 @@
 ---
-- name: Include vars for deluge
+- name: Include vars (Deluge)
   include_vars:
     file: deluge.yml
     
-- name: Create Deluge directories
+- name: Create directories (Deluge)
   file:
     path: "{{ item }}"
     state: directory

@@ -1,5 +1,5 @@
 ---
-- name: Modify timesyncd.conf
+- name: Modify timesyncd.conf (Docker)
   lineinfile:
     path: /etc/systemd/timesyncd.conf
     line: "NTP=pool.ntp.org"
@@ -11,7 +11,7 @@
 
 # There might need to be a delay after this for time to sync?
   
-- name: Install Docker and required packages
+- name: Install Docker and required packages (Docker)
   apt:
     name:
       - docker.io
@@ -22,7 +22,7 @@
     state: present
     update_cache: yes
     
-- name: Install Python Packages
+- name: Install Python Packages (Docker)
   pip:
     name:
       - docker
@@ -30,7 +30,7 @@
       - packaging
     state: present
     
-- name: Partition USB drive
+- name: Partition USB drive (Docker)
   parted:
     device: "{{ usb_device }}"
     number: 1
@@ -39,43 +39,43 @@
     label: gpt
     part_end: 100%
     
-- name: Create filesystem on the USB partition
+- name: Create filesystem on the USB partition (Docker)
   filesystem:
     fstype: ext4
     dev: "{{ usb_partition }}"
 
-- name: Create mount point
+- name: Create mount point (Docker)
   file:
     path: "{{ usb_mount_point }}"
     state: directory
 
-- name: Mount USB drive
+- name: Mount USB drive (Docker)
   mount:
     path: "{{ usb_mount_point }}"
     src: "{{ usb_partition }}"
     fstype: ext4
     state: mounted
 
-- name: Create Docker directory structure on USB drive
+- name: Create Docker directory structure on USB drive (Docker)
   file:
     path: "{{ docker_data_dir }}"
     state: directory
 
-- name: Copy Docker configuration files
+- name: Copy Docker configuration files (Docker)
   template:
     src: daemon.json.j2
     dest: "{{ docker_config_path }}"
   tags:
     - daemon.json
 
-- name: Add ipvlan module to /etc/modules
+- name: Add ipvlan module to /etc/modules (Docker)
   become: true
   lineinfile:
     path: /etc/modules
     line: "ipvlan"
     create: yes
 
-- name: Create IPvlan network
+- name: Create IPvlan network (Docker)
   docker_network:
     name: "{{ ipvlan_name }}"
 
@@ -87,19 +87,19 @@
       - subnet: "{{ ipvlan_network }}"
         gateway: "{{ ipvlan_gateway }}"
     
-- name: Enable and start Docker service
+- name: Enable and start Docker service (Docker)
   systemd:
     name: docker
     state: started
     enabled: yes
 
-- name: Add ansible user to Docker group
+- name: Add ansible user to Docker group (Docker)
   user:
     name: ansible
     groups: docker
     append: yes
 
-- name: Configure sysctl
+- name: Configure sysctl (Docker)
   template:
     src: sysctl.conf.j2
     dest: "{{ sysctl_config_file }}"

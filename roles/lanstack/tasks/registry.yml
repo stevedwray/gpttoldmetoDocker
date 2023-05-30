@@ -1,5 +1,5 @@
 ---
-- name: Include vars for registry (Registry)
+- name: Include vars for (Registry)
   include_vars:
     file: registry.yml
 

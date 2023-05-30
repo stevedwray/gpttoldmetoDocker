@@ -1,9 +1,9 @@
 ---
-- name: Include vars for pihole
+- name: Include vars (Pihole)
   include_vars:
     file: pihole.yml
 
-- name: Ensure pihole etc directories exist
+- name: Ensure directories exist (Pihole)
   file:
     path: "{{ item.value }}"
     state: directory

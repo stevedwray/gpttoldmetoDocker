@@ -18,7 +18,7 @@
   include_tasks: deluge.yml
   tags: deluge
   
-- name: Deploy Lanstack containers using Docker Compose (LanStack)
+- name: Deploy containers using Docker Compose (LanStack)
   tags:
     - compose
     - deluge
@@ -35,6 +35,8 @@
           external:
             name: ipvlan_net
       services:
+        # I think we are still trying to get the registry working properly.
+        # SSL and auth are being a pain.
         registry:
           restart: always
           image: registry:latest
@@ -53,7 +55,8 @@
           networks:
             ipvlan_net:
               ipv4_address: "{{ registry.ip }}"
-                    
+
+        # Deluge is working fine.
         deluge:
           restart: always
           image: "{{ deluge.image }}"
@@ -61,15 +64,12 @@
           environment:
             - PUID=1000
             - PGID=1000
+            # TZ should be a variable:
             - TZ=Pacific/Auckland
             - DELUGE_LOGLEVEL=error
           volumes:
             - "{{ deluge.volumes.config }}:/config"
             - "{{ deluge.volumes.downloads }}:/downloads"
-          ports:
-            - "{{ deluge.ip }}:8112:8112"
-            - "{{ deluge.ip }}:6881:6881"
-            - "{{ deluge.ip }}:6881:6881/udp"
           networks:
             ipvlan_net:
               ipv4_address: "{{ deluge.ip }}"
@@ -80,11 +80,8 @@
           volumes:
             - "{{ pihole.dirs.etc }}:/etc/pihole/"
             - "{{ pihole.dirs.etc }}/dnsmasq.d/:/etc/dnsmasq.d/"
-          ports:
-            - "{{ pihole.ip }}:80:80"
-            - "{{ pihole.ip }}:53:53/tcp"
-            - "{{ pihole.ip }}:53:53/udp"
           environment:
+            # This should be a variable:
             ADMIN_EMAIL: stevedwray@gmail.com
             WEBPASSWORD: "{{ web_password }}"
             BLOCKING_ENABLED: "true"
@@ -93,12 +90,15 @@
             DNS_FQDN_REQUIRED: "true"
             PIHOLE_DOMAIN: lan.local
             QUERY_LOGGING: "true"
+            # These are the upstream DNS servers to use.
+            # I'd like to set this up using Cloudflare's DNS over HTTPS though
+            # Should be variables, probably all of these:
             DNS1: 8.8.8.8
             DNS2: 8.8.4.4
             DNSSEC: "false"
             DNS_BOGUS_PRIV: "true"
             CONDITIONAL_FORWARDING: "false"
-            ServerIP: 192.168.1.14
+            ServerIP: 192.168.2.14
           networks:
             ipvlan_net:
               ipv4_address: "{{ pihole.ip }}"
