@@ -1,6 +1,18 @@
 ---
-jupyter_image_name: my-jupyter-image
-jupyter_container_name: my-jupyter-container
-jupyter_dockerfile_path: /tmp/Dockerfile
-jupyter_password: "argon2:$argon2id$v=19$m=10240,t=10,p=8$2CSUm3TsIS761WGkmuK/LA$0Iy5WFyiAgmv0y1ERufhIfoNHRExRe23q1uf83mxjSI"
-jupyter_notebook_port: 8888
+jupyter:
+  image:
+    name: my-jupyter-image
+  container:
+    name: my-jupyter-container
+  dockerfile:
+    path: /tmp/Dockerfile
+  password: "argon2:$argon2id$v=19$m=10240,t=10,p=8$2CSUm3TsIS761WGkmuK/LA$0Iy5WFyiAgmv0y1ERufhIfoNHRExRe23q1uf83mxjSI"
+  volume:
+    path: /srv/usb/jupyter
+  ssl:
+    certificate:
+      path: cert
+    key:
+      path: key
+  ip: 192.168.2.6
+  port: 443  

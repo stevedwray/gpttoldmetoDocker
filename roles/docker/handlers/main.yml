@@ -5,7 +5,7 @@
     state: restarted
 
 - name: Apply sysctl changes
-  command: sysctl -p "{{ sysctl_config_file }}"
+  command: sysctl -p "{{ sysctl.config_file }}"
   
 - name: Restart timesyncd
   systemd:

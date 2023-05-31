@@ -1,7 +1,1 @@
 ---
-jupyter:
-  volume_path: /srv/usb/jupyter
-  ssl_certificate_path: cert
-  ssl_key_path: key
-  ip: 192.168.2.6
-  

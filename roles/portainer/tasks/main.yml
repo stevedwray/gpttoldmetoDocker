@@ -4,7 +4,7 @@
   
 - name: Create Portainer data directory
   file:
-    path: "{{ portainer_data_dir }}"
+    path: "{{ portainer.data_dir }}"
     state: directory
 
 - name: Pull Portainer and agent images
@@ -30,13 +30,11 @@
           networks:
             - portainer-net
             - ipvlan_net
-          ports:
-            - '{{ portainer_ipvlan }}:9000:9000'
           environment:
             - AGENT_SECRET="{{ agent_secret }}"
           networks:
             ipvlan_net:
-              ipv4_address: "{{ portainer_ipvlan }}"
+              ipv4_address: "{{ portainer.ip }}"
         portainer-agent:
           restart: always
           image: portainer/agent

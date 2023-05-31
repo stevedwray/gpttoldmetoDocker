@@ -19,7 +19,6 @@
     path: "{{ item.target }}"
     src: "//{{ nas }}/{{ item.share }}"
     fstype: cifs
-    opts: |
-      credentials=/root/.smbcredentials,uid={{ smb.uid }},gid={{ smb.gid }},file_mode=0770,dir_mode=0770
+    opts: credentials=/root/.smbcredentials,uid={{ smb.uid }},gid={{ smb.gid }},file_mode=0770,dir_mode=0770
     state: mounted
   loop: "{{ smb.mounts }}"

@@ -1,5 +1,4 @@
 ---
-nas: 192.168.1.8
 smb:
   uid: ansible
   gid: ansible

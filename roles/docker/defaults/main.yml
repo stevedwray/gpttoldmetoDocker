@@ -1,15 +1,19 @@
 ---
-usb_device: /dev/sda
-usb_partition: /dev/sda1
-usb_mount_point: /srv/usb
-docker_config_path: /etc/docker/daemon.json
+usb:
+  device: /dev/sda
+  partition: /dev/sda1
+  mount_point: /srv/usb
 custom_network_file: /tmp/network.yml
-sysctl_config_file: /etc/sysctl.conf
-docker_data_dir: /srv/usb/docker-data
-network_name: docker_network
+docker:
+  config_path: /etc/docker/daemon.json
+  data_dir: /srv/usb/docker-data
+ipvlan:
+  gateway: 192.168.2.1
+  name: ipvlan_net
+  network: 192.168.2.0/24
+  parent: eth0
 network_driver: ipvlan
-ipvlan_name: ipvlan_net
-ipvlan_parent: eth0
-ipvlan_network: 192.168.2.0/24
-ipvlan_gateway: 192.168.2.1
+network_name: docker_network
+sysctl:
+  config_file: /etc/sysctl.conf
 

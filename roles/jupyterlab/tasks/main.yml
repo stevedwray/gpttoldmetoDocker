@@ -4,33 +4,19 @@
   
 - name: Create Jupyter volume directory
   file:
-    path: "{{ jupyter.volume_path }}"
+    path: "{{ jupyter.volume.path }}"
     state: directory
     mode: '0755'
 - name: Create Jupyter cert directory
   file:
-    path: "{{ jupyter.volume_path }}/{{ jupyter.ssl_certificate_path }}"
+    path: "{{ jupyter.volume.path }}/{{ jupyter.ssl.certificate.path }}"
     state: directory
     mode: '0750'
 - name: Create Jupyter key directory
   file:
-    path: "{{ jupyter.volume_path }}/{{ jupyter.ssl_key_path }}"
+    path: "{{ jupyter.volume.path }}/{{ jupyter.ssl.key.path }}"
     state: directory
     mode: '0750'
-
-- name: Generate self-signed TLS certificate and key
-  openssl_privatekey:
-    path: "{{ jupyter.volume_path }}/{{ jupyter.ssl_key_path }}/jupyter.key"
-    size: 2048
-    type: RSA
-    mode: '0600'
-
-- name: Generate self-signed TLS certificate
-  openssl_certificate:
-    path: "{{ jupyter.volume_path }}/{{ jupyter.ssl_certificate_path }}/jupyter.crt"
-    privatekey_path: "{{ jupyter.volume_path }}/{{ jupyter.ssl_key_path }}/jupyter.key"
-    provider: selfsigned
-    force: yes
 
 - name: Deploy JupyterLab container
   docker_compose:
@@ -40,17 +26,15 @@
       version: '3'
       services:
         jupyter:
-          image: 192.168.1.14:5000/my-jupyter-labs:arm64
-          #image: bitnami/jupyter-base-notebook:latest
-          ports:
-            - "{{ jupyter.ip}}:443:8888"
+          image: jupyter/base-notebook
           environment:
-            - JUPYTER_ENABLE_LAB=yes
-            - JUPYTER_PASSWORD={{ vault_jupyter_password }}
+            - GEN_CERT=yes
+            - NOTEBOOK_ARGS=--NotebookApp.token="{{ jupyter_token }}"
+            - JUPYTER_PORT="{{ jupyter.port }}"
           volumes:
-            - "{{ jupyter.volume_path }}:/home/jovyan/work"
-            - "{{ jupyter.volume_path }}/{{ jupyter.ssl_certificate_path }}/jupyter.crt:/etc/jupyter/ssl/jupytercert.crt:ro"
-            - "{{ jupyter.volume_path }}/{{ jupyter.ssl_key_path }}/jupyter.key:/etc/jupyter/ssl/jupytercert.key:ro"
+            - "{{ jupyter.volume.path }}:/home/jovyan/work"
+            - "{{ jupyter.volume.path }}/{{ jupyter.ssl.certificate.path }}/jupyter.crt:/etc/jupyter/ssl/jupytercert.crt:ro"
+            - "{{ jupyter.volume.path }}/{{ jupyter.ssl.key.path }}/jupyter.key:/etc/jupyter/ssl/jupytercert.key:ro"
           networks:
             ipvlan_net:
               ipv4_address: "{{ jupyter.ip }}"

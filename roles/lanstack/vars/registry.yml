@@ -1,7 +1,7 @@
 # Default variables for registry
 registry:
+  ip: "{{ registry_ip }}"
   subject_alt_name: registry.lan.local
-  ip: 192.168.2.2
   volumes:
     data: /srv/usb/registry/data
     certs: /srv/usb/registry/certs

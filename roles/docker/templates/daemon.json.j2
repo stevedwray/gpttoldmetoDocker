@@ -1,5 +1,7 @@
 {
-  "data-root": "{{ docker_data_dir }}",
+  "insecure-registries": ["192.168.1.14:5000","192.168.2.14:443",,"192.168.2.14:5000"],
+  "dns": ["192.168.1.14"],
+  "data-root": "{{ docker.data_dir }}",
   "log-driver": "json-file",
   "log-opts": {
     "max-size": "10m",

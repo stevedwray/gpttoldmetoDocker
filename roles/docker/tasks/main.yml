@@ -1,5 +1,6 @@
 ---
 - name: Modify timesyncd.conf (Docker)
+  tags: set_time
   lineinfile:
     path: /etc/systemd/timesyncd.conf
     line: "NTP=pool.ntp.org"
@@ -9,6 +10,7 @@
     regexp: "^NTP=.*"
   notify: Restart timesyncd
 
+  
 # There might need to be a delay after this for time to sync?
   
 - name: Install Docker and required packages (Docker)
@@ -17,10 +19,19 @@
       - docker.io
       - containerd
       - python3-pip
-      - linux-modules-extra-raspi
       - bridge-utils
+      - apt-transport-https
+      - ca-certificates
+      - gnupg-agent
+      - software-properties-common
     state: present
     update_cache: yes
+
+- name: Install Ubuntu-specific packages (Docker)
+  apt:
+    name: linux-modules-extra-raspi
+    state: present
+  when: ansible_distribution == 'Ubuntu'
     
 - name: Install Python Packages (Docker)
   pip:
@@ -32,7 +43,7 @@
     
 - name: Partition USB drive (Docker)
   parted:
-    device: "{{ usb_device }}"
+    device: "{{ usb.device }}"
     number: 1
     state: present
     align: optimal
@@ -42,29 +53,29 @@
 - name: Create filesystem on the USB partition (Docker)
   filesystem:
     fstype: ext4
-    dev: "{{ usb_partition }}"
+    dev: "{{ usb.partition }}"
 
 - name: Create mount point (Docker)
   file:
-    path: "{{ usb_mount_point }}"
+    path: "{{ usb.mount_point }}"
     state: directory
 
 - name: Mount USB drive (Docker)
   mount:
-    path: "{{ usb_mount_point }}"
-    src: "{{ usb_partition }}"
+    path: "{{ usb.mount_point }}"
+    src: "{{ usb.partition }}"
     fstype: ext4
     state: mounted
 
 - name: Create Docker directory structure on USB drive (Docker)
   file:
-    path: "{{ docker_data_dir }}"
+    path: "{{ docker.data_dir }}"
     state: directory
 
 - name: Copy Docker configuration files (Docker)
   template:
     src: daemon.json.j2
-    dest: "{{ docker_config_path }}"
+    dest: "{{ docker.config_path }}"
   tags:
     - daemon.json
 
@@ -77,15 +88,15 @@
 
 - name: Create IPvlan network (Docker)
   docker_network:
-    name: "{{ ipvlan_name }}"
+    name: "{{ ipvlan.name }}"
 
     driver: ipvlan
     driver_options:
       ipvlan_mode: l3
-      parent: "{{ ipvlan_parent }}"
+      parent: "{{ ipvlan.parent }}"
     ipam_config:
-      - subnet: "{{ ipvlan_network }}"
-        gateway: "{{ ipvlan_gateway }}"
+      - subnet: "{{ ipvlan.network }}"
+        gateway: "{{ ipvlan.gateway }}"
     
 - name: Enable and start Docker service (Docker)
   systemd:
@@ -102,6 +113,6 @@
 - name: Configure sysctl (Docker)
   template:
     src: sysctl.conf.j2
-    dest: "{{ sysctl_config_file }}"
+    dest: "{{ sysctl.config_file }}"
   notify: Apply sysctl changes
 

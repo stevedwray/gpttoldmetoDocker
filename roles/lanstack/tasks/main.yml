@@ -81,8 +81,7 @@
             - "{{ pihole.dirs.etc }}:/etc/pihole/"
             - "{{ pihole.dirs.etc }}/dnsmasq.d/:/etc/dnsmasq.d/"
           environment:
-            # This should be a variable:
-            ADMIN_EMAIL: stevedwray@gmail.com
+            ADMIN_EMAIL: "{{ admin.email }}"
             WEBPASSWORD: "{{ web_password }}"
             BLOCKING_ENABLED: "true"
             CACHE_SIZE: 9999
@@ -98,7 +97,7 @@
             DNSSEC: "false"
             DNS_BOGUS_PRIV: "true"
             CONDITIONAL_FORWARDING: "false"
-            ServerIP: 192.168.2.14
+            ServerIP: "{{ pihole.ip }}"
           networks:
             ipvlan_net:
               ipv4_address: "{{ pihole.ip }}"

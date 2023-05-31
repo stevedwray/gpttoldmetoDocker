@@ -4,10 +4,22 @@ ntp_servers:
   - 1.pool.ntp.org
   - 2.pool.ntp.org
   - 3.pool.ntp.org
-physical_nic: eth0
-network_subnet: 192.168.1.0/24
-network_gateway: 192.168.1.1
-dns_server_address: 192.168.1.14
-primary_interface_mac_address: dc:a6:32:52:a9:87
-macvlan_interface_address: 192.168.1.16
-pi4a_addr: 192.168.1.15
+nic:
+  name: eth0
+  mac: dc:a6:32:52:a9:87
+  
+network:
+  subnet: 192.168.1.0/24
+  gateway: 192.168.1.1
+  dns: 192.168.1.14
+
+pihole_ip: 192.168.2.254
+registry_ip: 192.168.2.2
+deluge_ip: 192.168.2.3
+  
+domain: lan.local
+dns: 192.168.1.1
+admin:
+  email: stevedwray@gmail.com
+  
+nas: 192.168.1.8
