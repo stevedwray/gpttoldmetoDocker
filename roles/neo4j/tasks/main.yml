@@ -10,6 +10,35 @@
     - data
     - logs
     - conf
+    - ssl/https
+    - ssl/https/trusted
+    - ssl/https/revoked
+    - ssl/bolt
+    - ssl/bolt/trusted
+    - ssl/bolt/revoked
+    
+- name: Ensure Neo4j SSL directories exist
+  ansible.builtin.file:
+    path: "{{ neo4j_volume_path }}/ssl/https/{{ item }}"
+    state: directory
+  loop:
+    - trusted
+    - revoked
+    
+- name: Generate self-signed TLS certificate and key for Neo4j
+  openssl_privatekey:
+    path: "{{ neo4j_volume_path }}/ssl/https/private.key"
+    size: 2048
+    type: RSA
+    mode: '0600'
+    
+- name: Generate self-signed TLS certificate for Neo4j
+  openssl_certificate:
+    path: "{{ neo4j_volume_path }}/ssl/https/public.crt"
+    privatekey_path: "{{ neo4j_volume_path }}/ssl/https/private.key"
+    provider: selfsigned
+    force: yes
+    subject_alt_name: "DNS:localhost,IP:127.0.0.1"
 
 - name: Deploy Neo4j container
   community.docker.docker_compose:
@@ -23,14 +52,22 @@
           environment:
             - "NEO4J_AUTH=neo4j/{{ neo4j_password }}"
             - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+            - NEO4J_dbms_connector_https_enabled=true
+            - NEO4J_dbms_ssl_policy_https_enabled=true
+            - NEO4J_dbms_ssl_policy_https_base__directory=/ssl/https
+            - dbms.ssl.policy.bolt.private_key=private.key
+            - dbms.ssl.policy.bolt.public_certificate=public.crt
           volumes:
             - "{{ neo4j_volume_path }}/data:/data"
             - "{{ neo4j_volume_path }}/logs:/logs"
             - "{{ neo4j_volume_path }}/conf:/conf"
+            - "{{ neo4j_volume_path }}/import:/var/lib/neo4j/import"
+            - "{{ neo4j_volume_path }}/plugins:/plugins"
+            - "{{ neo4j_volume_path }}/ssl:/ssl"
           networks:
             ipvlan_net:
               ipv4_address: "{{ neo4j_ip }}"
-      networks:
+      networks: 
         ipvlan_net:
           external:
             name: ipvlan_net
