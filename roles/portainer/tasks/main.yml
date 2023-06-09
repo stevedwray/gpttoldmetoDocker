@@ -7,6 +7,11 @@
     path: "{{ portainer.data_dir }}"
     state: directory
 
+- name: Create Portainer persistence directory
+  file:
+    path: "{{ portainer.data_dir }}/data"
+    state: directory
+    
 - name: Pull Portainer and agent images
   docker_image:
     name: "{{ item }}"
@@ -15,7 +20,6 @@
     - portainer/portainer-ce:latest
     - portainer/agent:latest
     
-
 - name: Deploy Portainer using Docker Compose
   docker_compose:
     project_name: portainer
@@ -41,6 +45,7 @@
           volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - /var/lib/docker/volumes:/var/lib/docker/volumes
+            - "{{ portainer.data_dir }}/data:/data"
           networks:
             - portainer-net
           environment:
