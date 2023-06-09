@@ -14,7 +14,8 @@
       tags: lanstack_setup
     - role: jupyterlab
       tags: jupyterlab_setup
-      
+    - role: neo4j
+      tags: neo4j
   vars_files:
     - vars/main.yml
 
