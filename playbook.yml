@@ -1,21 +1,26 @@
 ---
 - name: Setup Raspberry Pi for Docker
-  hosts: pi4a
+  hosts: kali-pi
   remote_user: ansible
   gather_facts: yes
   become: true
 
+       
   roles:
+    - role: base_setup
+      tags: base_setup
     - role: docker
-      tags: docker_setup
+      tags: docker
     - role: portainer
-      tags: portainer_setup
+      tags: portainer
     - role: lanstack
-      tags: lanstack_setup
+      tags: lanstack
     - role: jupyterlab
-      tags: jupyterlab_setup
+      tags: jupyterlab
     - role: neo4j
       tags: neo4j
   vars_files:
     - vars/main.yml
 
+  
+ 

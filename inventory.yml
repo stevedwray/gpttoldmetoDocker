@@ -1,6 +1,6 @@
 all:
   hosts:
-    pi4a:
+    kali-pi:
       ansible_host: 192.168.1.114
       ansible_user: ansible
       ansible_ssh_private_key_file: /home/steve/.ssh/id_rsa
