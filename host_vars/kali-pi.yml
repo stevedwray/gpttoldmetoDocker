@@ -1,0 +1,5 @@
+---
+usb:
+  mount_point: /srv/usb
+  device: /dev/sda
+  partition: /dev/sda1
