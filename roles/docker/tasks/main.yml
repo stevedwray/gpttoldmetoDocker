@@ -1,17 +1,7 @@
 ---
-- name: Modify timesyncd.conf (Docker)
-  tags: set_time
-  lineinfile:
-    path: /etc/systemd/timesyncd.conf
-    line: "NTP=pool.ntp.org"
-    state: present
-    backup: yes
-    insertafter: EOF
-    regexp: "^NTP=.*"
-  notify: Restart timesyncd
-
-  
-# There might need to be a delay after this for time to sync?
+- name: Include vars (Docker)
+  include_vars:
+    file: main.yml
   
 - name: Install Docker and required packages (Docker)
   apt:
@@ -41,31 +31,6 @@
       - packaging
     state: present
     
-- name: Partition USB drive (Docker)
-  parted:
-    device: "{{ usb.device }}"
-    number: 1
-    state: present
-    align: optimal
-    label: gpt
-    part_end: 100%
-    
-- name: Create filesystem on the USB partition (Docker)
-  filesystem:
-    fstype: ext4
-    dev: "{{ usb.partition }}"
-
-- name: Create mount point (Docker)
-  file:
-    path: "{{ usb.mount_point }}"
-    state: directory
-
-- name: Mount USB drive (Docker)
-  mount:
-    path: "{{ usb.mount_point }}"
-    src: "{{ usb.partition }}"
-    fstype: ext4
-    state: mounted
 
 - name: Create Docker directory structure on USB drive (Docker)
   file:

@@ -1,8 +1,4 @@
 ---
-usb:
-  device: /dev/sda
-  partition: /dev/sda1
-  mount_point: /srv/usb
 custom_network_file: /tmp/network.yml
 docker:
   config_path: /etc/docker/daemon.json
