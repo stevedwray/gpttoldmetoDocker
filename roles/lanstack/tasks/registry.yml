@@ -20,14 +20,15 @@
 
 - name: Generate a private key (Registry)
   community.crypto.openssl_privatekey:
-    path: /srv/usb/registry/certs/private.key
+    path: "{{ registry.volumes.certs }}/private.key"
     size: 2048
   become: yes
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Generate CSR (Registry)
   community.crypto.openssl_csr:
-    path: /srv/usb/registry/certs/registry.csr
-    privatekey_path: /srv/usb/registry/certs/private.key
+    path: "{{ registry.volumes.certs }}/registry.csr"
+    privatekey_path: "{{ registry.volumes.certs }}/private.key"
     common_name: "{{ registry.subject_alt_name }}"
     country_name: "{{ registry.c }}"
     state_or_province_name: "{{ registry.st }}"
@@ -35,12 +36,13 @@
     organization_name: "{{ registry.o }}"
     organizational_unit_name: "{{ registry.ou }}"
   become: yes
-
+  ignore_errors: "{{ ansible_check_mode }}"
+  
 - name: Generate a self-signed certificate (Registry)
   community.crypto.x509_certificate:
-    path: /srv/usb/registry/certs/registry.crt
-    privatekey_path: /srv/usb/registry/certs/private.key
-    csr_path: /srv/usb/registry/certs/registry.csr
+    path: "{{ registry.volumes.certs }}/registry.crt"
+    privatekey_path: "{{ registry.volumes.certs }}/private.key"
+    csr_path: "{{ registry.volumes.certs }}/registry.csr"
     provider: selfsigned
     selfsigned_not_after: "+3650d"
     selfsigned_not_before: "+0s"
@@ -49,6 +51,7 @@
     group: root
     mode: '0644'
   become: yes
+  ignore_errors: "{{ ansible_check_mode }}"
   
 - name: Create auth directory (Registry)
   file:
@@ -70,4 +73,5 @@
     mode: '0600'
     owner: root
     group: www-data
-
+  ignore_errors: "{{ ansible_check_mode }}"
+  

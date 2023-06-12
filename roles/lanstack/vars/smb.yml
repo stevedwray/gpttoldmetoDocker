@@ -4,17 +4,17 @@ smb:
   gid: ansible
   mounts:
     - share: Movies
-      target: /srv/media/gazaar/movies
+      target: "{{ nas_mount }}/gazaar/movies"
     - share: TV
-      target: /srv/media/gazaar/tv
+      target: "{{ nas_mount }}/gazaar/tv"
     - share: Games
-      target: /srv/media/gazaar/games
+      target: "{{ nas_mount }}/gazaar/games"
     - share: Pictures
-      target: /srv/media/gazaar/photos
+      target: "{{ nas_mount }}/gazaar/photos"
     - share: Documents
-      target: /srv/media/gazaar/documents
+      target: "{{ nas_mount }}/gazaar/documents"
     - share: HomeMovies
-      target: /srv/media/gazaar/homemovies
+      target: "{{ nas_mount }}/gazaar/homemovies"
     - share: Torrents
-      target: /srv/media/gazaar/torrents
+      target: "{{ nas_mount }}/gazaar/torrents"
       

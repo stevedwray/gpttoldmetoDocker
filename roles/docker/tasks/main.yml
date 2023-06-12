@@ -32,9 +32,9 @@
     state: present
     
 
-- name: Create Docker directory structure on USB drive (Docker)
+- name: Create Docker directory structure (Docker)
   file:
-    path: "{{ docker.data_dir }}"
+    path: "{{ container.data }}"
     state: directory
 
 - name: Copy Docker configuration files (Docker)
@@ -54,7 +54,6 @@
 - name: Create IPvlan network (Docker)
   docker_network:
     name: "{{ ipvlan.name }}"
-
     driver: ipvlan
     driver_options:
       ipvlan_mode: l3

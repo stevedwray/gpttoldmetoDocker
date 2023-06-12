@@ -78,8 +78,8 @@
           restart: always
           image: pihole/pihole:latest
           volumes:
-            - "{{ pihole.dirs.etc }}:/etc/pihole/"
-            - "{{ pihole.dirs.etc }}/dnsmasq.d/:/etc/dnsmasq.d/"
+            - "{{ container.volumes }}/pihole/etc-pihole/:/etc/pihole/"
+            - "{{ container.volumes }}/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/"
           environment:
             ADMIN_EMAIL: "{{ admin.email }}"
             WEBPASSWORD: "{{ web_password }}"
@@ -98,6 +98,8 @@
             DNS_BOGUS_PRIV: "true"
             CONDITIONAL_FORWARDING: "false"
             ServerIP: "{{ pihole.ip }}"
+          dns:
+            - 192.168.1.1
           networks:
             ipvlan_net:
               ipv4_address: "{{ pihole.ip }}"

@@ -33,7 +33,7 @@
             - "JUPYTER_PORT={{ jupyter.port }}"
           volumes:
             # I'm going to want to put this somewhere I can actually drop files etc
-            - "/srv/media/gazaar/documents/Jupyter:/home/jovyan/work"
+            - "{{ nas_mount }}/gazaar/documents/Jupyter:/home/jovyan/work"
             - "{{ jupyter.volume.path }}/{{ jupyter.ssl.certificate.path }}/jupyter.crt:/etc/jupyter/ssl/jupytercert.crt:ro"
             - "{{ jupyter.volume.path }}/{{ jupyter.ssl.key.path }}/jupyter.key:/etc/jupyter/ssl/jupytercert.key:ro"
           networks:

@@ -2,12 +2,13 @@
 custom_network_file: /tmp/network.yml
 docker:
   config_path: /etc/docker/daemon.json
-  data_dir: /srv/usb/docker-data
+  data: "{{ container.data }}"
 ipvlan:
-  gateway: 192.168.2.1
+  # ipvlan settings mostly come from the hosts_vars
+  gateway: "{{ ip_vlan_gateway  }}"
   name: ipvlan_net
-  network: 192.168.2.0/24
-  parent: eth0
+  network: "{{ ip_vlan_network }}"
+  parent: "{{ network_primary_dev }}"
 network_driver: ipvlan
 network_name: docker_network
 sysctl:

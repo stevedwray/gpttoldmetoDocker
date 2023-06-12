@@ -1,5 +1,6 @@
 ---
-neo4j_volume_path: /srv/usb/neo4j
-neo4j_image: neo4j:latest
-neo4j_ip: 192.168.2.10
+neo4j:
+  volume: "{{ container.volumes }}/neo4j"
+  image: neo4j:latest
+  ip: "{{ neo4j_ip }}"
 

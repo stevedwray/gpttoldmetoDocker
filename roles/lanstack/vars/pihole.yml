@@ -16,7 +16,8 @@ pihole:
     DNS_BOGUS_PRIV: true
     CONDITIONAL_FORWARDING: false
   dirs:
-    etc: /srv/usb/pihole/etc
-    dnsmasq: /srv/usb/pihole/etc/dnsmasq.d
+    etc: "{{ container.volumes }}/pihole/etc"
+    dnsmasq: "{{ container.volumes }}/pihole/etc/dnsmasq.d"
+    log: "{{ container.volumes }}/pihole/log"
   dns:
     - "{{ dns }}"

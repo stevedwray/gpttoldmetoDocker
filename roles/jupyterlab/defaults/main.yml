@@ -8,11 +8,11 @@ jupyter:
     path: /tmp/Dockerfile
   password: "argon2:$argon2id$v=19$m=10240,t=10,p=8$2CSUm3TsIS761WGkmuK/LA$0Iy5WFyiAgmv0y1ERufhIfoNHRExRe23q1uf83mxjSI"
   volume:
-    path: /srv/usb/jupyter
+    path: "{{ container.volumes }}/jupyter"
   ssl:
     certificate:
       path: cert
     key:
       path: key
-  ip: 192.168.2.6
-  port: 443  
+  ip: "{{ jupyter_ip }}"
+  port: 443

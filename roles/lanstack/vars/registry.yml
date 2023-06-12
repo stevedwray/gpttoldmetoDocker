@@ -3,9 +3,9 @@ registry:
   ip: "{{ registry_ip }}"
   subject_alt_name: registry.lan.local
   volumes:
-    data: /srv/usb/registry/data
-    certs: /srv/usb/registry/certs
-    auth: /srv/usb/registry/auth
+    data:  "{{ container.volumes }}/registry/data"
+    certs: "{{ container.volumes }}/registry/certs"
+    auth:  "{{ container.volumes }}/registry/auth"
   c: NZ
   st: Wellington
   l: Wellington

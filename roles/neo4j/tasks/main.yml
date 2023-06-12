@@ -4,7 +4,7 @@
 
 - name: Ensure Neo4j directories exist
   ansible.builtin.file:
-    path: "{{ neo4j_volume_path }}/{{ item }}"
+    path: "{{ neo4j.volume }}/{{ item }}"
     state: directory
     owner: 7474
     group: 7474
@@ -21,31 +21,34 @@
 
 - name: Create private key for HTTPS self-signed certificate
   community.crypto.openssl_privatekey:
-    path: "{{ neo4j_volume_path }}/ssl/https/private.key"
+    path: "{{ neo4j.volume }}/ssl/https/private.key"
     type: RSA
     size: 2048
     mode: '0600'
     owner: 7474
     group: 7474
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Create certificate signing request (CSR) for HTTPS self-signed certificate
   community.crypto.openssl_csr:
-    privatekey_path: "{{ neo4j_volume_path }}/ssl/https/private.key"
-    path: "{{ neo4j_volume_path }}/ssl/https/certificate.csr"
-    common_name: kali-pi
+    privatekey_path: "{{ neo4j.volume }}/ssl/https/private.key"
+    path: "{{ neo4j.volume }}/ssl/https/certificate.csr"
+    common_name: "{{ ssl_name }}"
     subject_alt_name:
-      - "DNS:kali-pi"
+      - "DNS:{{ ssl_name }}"
     owner: 7474
     group: 7474
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Create self-signed certificate from CSR for HTTPS
   community.crypto.x509_certificate:
-    path: "{{ neo4j_volume_path }}/ssl/https/public.crt"
-    privatekey_path: "{{ neo4j_volume_path }}/ssl/https/private.key"
-    csr_path: "{{ neo4j_volume_path }}/ssl/https/certificate.csr"
+    path: "{{ neo4j.volume }}/ssl/https/public.crt"
+    privatekey_path: "{{ neo4j.volume }}/ssl/https/private.key"
+    csr_path: "{{ neo4j.volume }}/ssl/https/certificate.csr"
     provider: selfsigned
     owner: 7474
     group: 7474
+  ignore_errors: "{{ ansible_check_mode }}"
     
 - name: Deploy Neo4j container
   community.docker.docker_compose:
@@ -55,38 +58,43 @@
       version: '3'
       services:
         neo4j:
-          image: "{{ neo4j_image }}"
+          image: "{{ neo4j.image }}"
           environment:
             - "NEO4J_AUTH=neo4j/{{ neo4j_password }}"
             - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
             - NEO4J_dbms_connector_https_advertised__address=:7473
             - NEO4J_dbms_connector_https_enabled=true
             - NEO4J_dbms_connector_https_listen__address=:7473
-            - NEO4J_dbms_ssl_policy_bolt_base_directory=/ssl/https
-            - NEO4J_dbms_ssl_policy_bolt_certificate=/ssl/https/public.crt
+            # bolt
+            - NEO4J_dbms_ssl_policy_bolt_base__directory=/ssl/https
+            - NEO4J_dbms_ssl_policy_bolt_certificate=public.crt
             - NEO4J_dbms_ssl_policy_bolt_client_auth=NONE
             - NEO4J_dbms_ssl_policy_bolt_enabled=true
-            - NEO4J_dbms_ssl_policy_bolt_key=/ssl/https/private.key
+            - NEO4J_dbms_ssl_policy_bolt_key=private.key
             - NEO4J_dbms_ssl_policy_bolt_tls__level=REQUIRED
+            - NEO4J_dbms_ssl_policy_bolt_trust__all=true
+            # https
             - NEO4J_dbms_ssl_policy_https_base__directory=/ssl/https
-            - NEO4J_dbms_ssl_policy_https_certificate=/ssl/https/public.crt
+            - NEO4J_dbms_ssl_policy_https_certificate=public.crt
             - NEO4J_dbms_ssl_policy_https_enabled=true
-            - NEO4J_dbms_ssl_policy_https_key=/ssl/https/private.key
+            - NEO4J_dbms_ssl_policy_https_key=private.key
+            - NEO4J_dbms_ssl_policy_https_trust__all=true
+            # server
             - NEO4J_server_bolt_tls__level=REQUIRED
             - NEO4J_server_https_enabled=true
-            - NEO4J_dbms_ssl_policy_bolt_trust__all=true
-            - NEO4J_dbms_ssl_policy_https_trust__all=true
 
           volumes:
-            - "{{ neo4j_volume_path }}/data:/data"
-            - "{{ neo4j_volume_path }}/logs:/logs"
-            - "{{ neo4j_volume_path }}/conf:/conf"
-            - "{{ neo4j_volume_path }}/import:/var/lib/neo4j/import"
-            - "{{ neo4j_volume_path }}/plugins:/plugins"
-            - "{{ neo4j_volume_path }}/ssl:/ssl"
+            - "{{ neo4j.volume }}/data:/data"
+            - "{{ neo4j.volume }}/logs:/logs"
+            - "{{ neo4j.volume }}/conf:/conf"
+            - "{{ neo4j.volume }}/import:/var/lib/neo4j/import"
+            - "{{ neo4j.volume }}/plugins:/plugins"
+            - "{{ neo4j.volume }}/ssl:/ssl"
+            - "{{ neo4j.volume }}/ssl/https/private.key:/ssl/var/lib/neo4j/certificates/bolt/private.key"
+            - "{{ neo4j.volume }}/ssl/https/public.crt:/ssl/var/lib/neo4j/certificates/bolt/public.crt"
           networks:
             ipvlan_net:
-              ipv4_address: "{{ neo4j_ip }}"
+              ipv4_address: "{{ neo4j.ip }}"
       networks: 
         ipvlan_net:
           external:

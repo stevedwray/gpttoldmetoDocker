@@ -4,5 +4,5 @@ deluge:
   ip: "{{ deluge_ip }}"
   image: lscr.io/linuxserver/deluge:latest
   volumes:
-    config: /srv/usb/deluge/config
-    downloads: /srv/media/gazaar/torrents
+    config: "{{ container.volumes}}/deluge/config"
+    downloads: "{{nas_mount}}/gazaar/torrents"

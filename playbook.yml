@@ -1,6 +1,8 @@
 ---
 - name: Setup Raspberry Pi for Docker
-  hosts: kali-pi
+  hosts:
+    - kali-pi
+    - argon01
   remote_user: ansible
   gather_facts: yes
   become: true

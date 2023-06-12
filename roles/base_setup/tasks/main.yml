@@ -1,0 +1,56 @@
+---
+
+- name: Modify timesyncd.conf (Base)
+  tags: set_time
+  lineinfile:
+    path: /etc/systemd/timesyncd.conf
+    line: "NTP=pool.ntp.org"
+    state: present
+    backup: yes
+    insertafter: EOF
+    regexp: "^NTP=.*"
+  notify: Restart timesyncd
+
+  
+- name: Install Ubuntu-specific packages (Base)
+  apt:
+    name: linux-modules-extra-raspi
+    state: present
+  when: ansible_distribution == 'Ubuntu'
+  
+- name: Install Kali-specific packages (Base)
+  apt:
+    name: rsyslog
+    state: present
+  when: ansible_distribution == 'Kali'
+
+- name: Partition USB drive (Docker)
+  parted:
+    device: "{{ usb.device }}"
+    number: 1
+    state: present
+    align: optimal
+    label: gpt
+    part_end: 100%
+  when: inventory_hostname == 'kali-pi'
+    
+- name: Create filesystem on the USB partition (Docker)
+  filesystem:
+    fstype: ext4
+    dev: "{{ usb.partition }}"
+  when: inventory_hostname == 'kali-pi'
+
+- name: Create mount point (Docker)
+  file:
+    path: "{{ usb.mount_point }}"
+    state: directory
+  when: inventory_hostname == 'kali-pi'
+
+- name: Mount USB drive (Docker)
+  mount:
+    path: "{{ usb.mount_point }}"
+    src: "{{ usb.partition }}"
+    fstype: ext4
+    state: mounted
+  when: inventory_hostname == 'kali-pi'
+

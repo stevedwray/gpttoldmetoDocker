@@ -1,6 +1,6 @@
 ---
 portainer:
-  data_dir: "{{ docker.data_dir }}/portainer"
+  data_dir: "{{ container.volumes }}/portainer"
   networks:
     - name: Portainer_Net
       subnet: 192.16.100.0/24
