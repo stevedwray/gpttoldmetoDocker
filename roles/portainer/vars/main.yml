@@ -11,4 +11,5 @@ portainer:
     - "9000:9000"
   agent_ports:
     - "9001:9001"
-  ip: 192.168.2.15
+  ip: "{{ portainer_ip }}"
+  

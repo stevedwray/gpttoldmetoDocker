@@ -7,6 +7,14 @@
   ansible.builtin.package:
     name: cifs-utils
     state: present
+    
+- name: Create .smbcredentials file
+  template:
+    src: templates/smbcredentials.j2
+    dest: /root/.smbcredentials
+    owner: root
+    group: root
+    mode: '0600'
 
 - name: Ensure the mount points exist (SMB)
   ansible.builtin.file:

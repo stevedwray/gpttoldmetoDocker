@@ -2,12 +2,27 @@
 - name: Include vars (Docker)
   include_vars:
     file: main.yml
+
+- name: Repo and key for Debian
+  block:    
+    - name: Download Docker GPG key
+      get_url:
+        url: "https://download.docker.com/linux/debian/gpg"
+        dest: "/etc/apt/keyrings/docker.gpg"
+        mode: '0644'
+        validate_certs: yes
+  
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=arm64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
+        state: present
+        filename: docker
+  when: ansible_distribution in ['Debian']
+
   
 - name: Install Docker and required packages (Docker)
   apt:
     name:
-      - docker.io
-      - containerd
       - python3-pip
       - bridge-utils
       - apt-transport-https
@@ -17,6 +32,30 @@
     state: present
     update_cache: yes
 
+    
+- name: Install Docker and required packages (Docker)
+  apt:
+    name:
+      - docker.io
+      - containerd
+    state: present
+    update_cache: yes
+  when: ansible_distribution in ['Ubuntu', 'Kali']
+
+- name: Install Docker and required packages (Docker)
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+      - docker-ce-rootless-extras
+      - docker-buildx-plugin
+    state: present
+    update_cache: yes
+  when: ansible_distribution in ['Debian']
+
+  
 - name: Install Ubuntu-specific packages (Docker)
   apt:
     name: linux-modules-extra-raspi
@@ -30,7 +69,6 @@
       - docker-compose
       - packaging
     state: present
-    
 
 - name: Create Docker directory structure (Docker)
   file:

@@ -92,8 +92,7 @@
             # These are the upstream DNS servers to use.
             # I'd like to set this up using Cloudflare's DNS over HTTPS though
             # Should be variables, probably all of these:
-            DNS1: 8.8.8.8
-            DNS2: 8.8.4.4
+            DNS1: 192.168.1.1
             DNSSEC: "false"
             DNS_BOGUS_PRIV: "true"
             CONDITIONAL_FORWARDING: "false"

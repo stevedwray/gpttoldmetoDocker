@@ -3,6 +3,7 @@
   hosts:
     - kali-pi
     - argon01
+    - argon02
   remote_user: ansible
   gather_facts: yes
   become: true

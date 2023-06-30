@@ -8,6 +8,7 @@ registry_ip: 192.168.3.2
 deluge_ip: 192.168.3.3
 jupyter_ip: 192.168.3.6
 neo4j_ip: 192.168.3.10
+portainer_ip: 192.168.3.15
 
 network_primary_dev: eth0
 ip_vlan_gateway: 192.168.3.1
